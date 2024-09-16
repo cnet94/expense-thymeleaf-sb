@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Expense Details</title>
+
+    <!-- Подключение jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+    <!-- Подключение Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Подключение Bootstrap JS (зависит от jQuery) -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</head>
+<body>
+<div class="container mt-5">
+    <h1 class="mb-4">Expense Detail</h1>
+    <a href="/expenses" class="btn btn-secondary">Go to Expenses</a>
+    <!-- Основная информация о расходе -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <h4 class="card-title" th:text="${expenseEntity.name}"></h4>
+            <p class="card-text"><strong>Type:</strong> <span th:text="${expenseEntity.type}"></span></p>
+            <p class="card-text"><strong>Total amount:</strong>
+                <span th:text="${expenseEntity.generalBalance.totalAmount}"></span>
+                <span th:text="${expenseEntity.generalBalance.currency}"></span>
+            </p>
+            <p class="card-text"><strong>Reminder amount:</strong>
+                <span th:text="${expenseEntity.generalBalance.remainderAmount}"></span>
+                <span th:text="${expenseEntity.generalBalance.currency}"></span>
+            </p>
+            <p class="card-text"><strong>Created At:</strong> <span th:text="${expenseEntity.createAt != null ? #temporals.format(expenseEntity.createAt, 'yyyy-MM-dd HH:mm') : ''}">Created At</span></p>
+        </div>
+    </div>
+
+    <table class="table table-striped table-hover">
+        <thead class="table-dark">
+        <tr>
+            <th>Payment Date</th>
+            <th>Amount</th>
+            <th>Currency</th>
+            <th>Amount country</th>
+            <th>Currency country</th>
+            <th>Paid</th>
+            <th colspan="3">Actions</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="detail : ${expenseEntity.details}">
+            <td th:text="${#temporals.format(detail.paymentDate, 'yyyy-MM-dd')}">Payment Date</td>
+            <td th:text="${detail.amount}">Amount</td>
+            <td th:text="${detail.currency}">Currency</td>
+            <td th:text="${detail.amountCountry}">Amount</td>
+            <td th:text="${detail.currencyCountry}">Currency</td>
+            <td th:text="${detail.paid ? 'Yes' : 'No'}">Paid</td>
+            <!-- Кнопка Approve, показывается только если detail.paid = false -->
+            <td th:if="${!detail.paid}">
+                <form th:action="@{/expense/details/approve}" method="post">
+                    <input type="hidden" name="id" th:value="${detail.id}" />
+                    <input type="hidden" name="expenseId" th:value="${expenseEntity.id}" />
+                    <button type="submit" class="btn btn-success btn-sm">Paid</button>
+                </form>
+            </td>
+
+            <!-- Кнопка Cancel, показывается только если detail.paid = true -->
+            <td th:if="${detail.paid}">
+                <form th:action="@{/expense/details/cancel}" method="post">
+                    <input type="hidden" name="id" th:value="${detail.id}" />
+                    <input type="hidden" name="expenseId" th:value="${expenseEntity.id}" />
+                    <button type="submit" class="btn btn-danger btn-sm">Cancel payment</button>
+                </form>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+
+<!-- Подключение Bootstrap JS (если нужен JavaScript функционал Bootstrap) -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
