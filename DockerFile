@@ -1,0 +1,18 @@
+# Используем базовый образ с JDK
+FROM openjdk:17-jdk-alpine
+
+# Устанавливаем рабочую директорию
+WORKDIR /app
+
+COPY gradlew build.gradle settings.gradle /app/
+COPY gradle /app/gradle
+COPY src /app/src
+
+# Изменяем права доступа для gradlew
+RUN chmod +x /app/gradlew
+
+# Сборка проекта
+RUN ./gradlew build
+
+# Запуск приложения
+CMD ["java", "-jar", "build/libs/expense.jar"]

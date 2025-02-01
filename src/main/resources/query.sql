@@ -1,31 +1,34 @@
-CREATE TABLE expenseEntity (
-                         id UUID PRIMARY KEY,
-                         name VARCHAR(255),
-                         type VARCHAR(50),
-                         currency VARCHAR(3),
-                         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+create table if not exists expense
+(
+    id                  uuid         not null
+        primary key,
+    name                varchar(150) not null,
+    amount              double precision,
+    currency            varchar(3) not null,
+    type                varchar(50) not null,
+    payment_period_type varchar(50) not null,
+    payment_day         integer,
+    payment_date        timestamp,
+    expiry_date         timestamp,
+    created_at          timestamp default CURRENT_TIMESTAMP not null
 );
 
-CREATE TABLE expense_detail (
-                                id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-                                expense_id UUID,
-                                amount DOUBLE PRECISION,
-                                payment_date TIMESTAMP,
-                                FOREIGN KEY (expense_id) REFERENCES expenseEntity(id)
+
+CREATE TABLE if not exists expense_detail (
+                                id UUID not null
+                                    PRIMARY KEY DEFAULT gen_random_uuid() ,
+                                expense_id          UUID not null ,
+                                payment_period_type varchar(50) not null ,
+                                name                varchar(150) not null ,
+                                amount              DOUBLE PRECISION not null ,
+                                currency            varchar(3) not null ,
+                                plan_payment_date   TIMESTAMP not null ,
+                                fact_payment_date   TIMESTAMP not null ,
+                                paid boolean not null ,
+                                FOREIGN KEY (expense_id) REFERENCES expense(id)
 );
 
-alter table expense_detail
-    add paid boolean not null default false;
-
-CREATE TABLE users (
-                                id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-                                currency VARCHAR(10) NOT NULL
-);
-
-alter table expense_detail
-    add currency VARCHAR(50);
-
-create table expense_detail_attachment
+create table if not exists expense_detail_attachment
 (
     id                     uuid         not null
         constraint expense_detail_attachment_pk
@@ -39,6 +42,11 @@ create table expense_detail_attachment
     created_at             timestamp default CURRENT_TIMESTAMP,
     title                  varchar,
     description            varchar
+);
+
+CREATE TABLE users (
+                       id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+                       currency VARCHAR(10) NOT NULL
 );
 
 

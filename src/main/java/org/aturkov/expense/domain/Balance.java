@@ -8,7 +8,7 @@ import java.util.Currency;
 @Data
 @Accessors(chain = true)
 public class Balance {
-    private String totalAmount;
-    private String remainderAmount;
+    private Double totalAmount;
+    private Double remainderAmount;
     private CurrencyType currency;
 }
