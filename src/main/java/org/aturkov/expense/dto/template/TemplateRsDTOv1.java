@@ -6,7 +6,7 @@ import org.aturkov.expense.dao.template.TemplateEntity;
 import org.aturkov.expense.domain.CurrencyType;
 import org.aturkov.expense.dto.BalanceDTOv1;
 import org.aturkov.expense.dto.DTOConfig;
-import org.aturkov.expense.dto.expenseDetail.ExpenseDetailDTOv1;
+import org.aturkov.expense.dto.detail.ExpenseDetailDTOv1;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import java.time.LocalDate;

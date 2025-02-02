@@ -8,7 +8,7 @@ import org.aturkov.expense.mapper.SimpleDTOMapper;
 import org.springframework.stereotype.Component;
 
 
-import static org.aturkov.expense.service.DateService.convertToTimestamp;
+import static org.aturkov.expense.service.other.DateService.convertToTimestamp;
 
 @Component
 @RequiredArgsConstructor

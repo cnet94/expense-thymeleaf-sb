@@ -5,7 +5,7 @@ import lombok.*;
 import lombok.experimental.Accessors;
 import lombok.experimental.FieldNameConstants;
 import org.aturkov.expense.dao.deposit.DepositEntity;
-import org.aturkov.expense.dao.expenseDetail.ExpenseDetailEntity;
+import org.aturkov.expense.dao.detail.ExpenseDetailEntity;
 import org.aturkov.expense.domain.Balance;
 import org.aturkov.expense.domain.CurrencyType;
 import org.aturkov.expense.domain.ValidityPeriod;

@@ -3,7 +3,7 @@ package org.aturkov.expense.controller.rest;
 import lombok.RequiredArgsConstructor;
 import org.aturkov.expense.dto.template.TemplateRsDTOv1;
 import org.aturkov.expense.mapper.template.TemplateDTOMapper;
-import org.aturkov.expense.service.TemplateService;
+import org.aturkov.expense.service.template.TemplateService;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;

@@ -1,6 +1,6 @@
 package org.aturkov.expense.service;
 
-import org.aturkov.expense.ServiceException;
+import org.aturkov.expense.exception.ServiceException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.repository.CrudRepository;

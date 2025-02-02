@@ -7,13 +7,13 @@ import org.aturkov.expense.dto.template.TemplateRsDTOv1;
 import org.aturkov.expense.mapper.MapperContext;
 import org.aturkov.expense.mapper.SimpleDTOMapper;
 import org.aturkov.expense.mapper.other.BalanceDTOMapper;
-import org.aturkov.expense.mapper.expenseDetail.ExpenseDetailDTOMapper;
-import org.aturkov.expense.service.TemplateService;
+import org.aturkov.expense.mapper.detail.ExpenseDetailDTOMapper;
+import org.aturkov.expense.service.template.TemplateService;
 import org.springframework.stereotype.Component;
 
 
-import static org.aturkov.expense.service.DateService.convertToLocaleDate;
-import static org.aturkov.expense.service.DateService.convertToLocaleDateTime;
+import static org.aturkov.expense.service.other.DateService.convertToLocaleDate;
+import static org.aturkov.expense.service.other.DateService.convertToLocaleDateTime;
 
 @Component
 @RequiredArgsConstructor

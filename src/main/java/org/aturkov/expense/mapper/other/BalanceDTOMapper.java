@@ -5,7 +5,7 @@ import org.aturkov.expense.domain.Balance;
 import org.aturkov.expense.dto.BalanceDTOv1;
 import org.aturkov.expense.mapper.MapperContext;
 import org.aturkov.expense.mapper.SimpleDTOMapper;
-import org.aturkov.expense.service.TemplateService;
+import org.aturkov.expense.service.template.TemplateService;
 import org.springframework.stereotype.Component;
 
 @Component
