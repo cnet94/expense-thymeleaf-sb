@@ -2,22 +2,20 @@ package org.aturkov.expense.mapper.deposit;
 
 import lombok.RequiredArgsConstructor;
 import org.aturkov.expense.dao.deposit.DepositEntity;
-import org.aturkov.expense.dto.deposit.DepositDTOv1;
+import org.aturkov.expense.dto.deposit.DepositSaveDTOv1;
 import org.aturkov.expense.mapper.MapperContext;
 import org.aturkov.expense.mapper.SimpleDTOMapper;
 import org.springframework.stereotype.Component;
 
 @Component
 @RequiredArgsConstructor
-public class DepositDTOMapper extends SimpleDTOMapper<DepositEntity, DepositDTOv1> {
-
+public class DepositSaveDTOReverseMapper extends SimpleDTOMapper<DepositSaveDTOv1, DepositEntity> {
     @Override
-    public void map(DepositEntity src, DepositDTOv1 dst, MapperContext mapperContext) throws Exception {
+    public void map(DepositSaveDTOv1 src, DepositEntity dst, MapperContext mapperContext) throws Exception {
         dst
-                .setId(src.getId())
                 .setName(src.getName())
                 .setAmount(src.getAmount())
-                .setCurrency(src.getCurrencyType())
+                .setCurrencyType(src.getCurrencyType())
                 .setStatus(src.getStatus());
     }
 }

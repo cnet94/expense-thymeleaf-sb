@@ -6,7 +6,7 @@ import org.aturkov.expense.dto.template.TemplateCreateDTOv1;
 import org.aturkov.expense.mapper.deposit.DepositDTOMapper;
 import org.aturkov.expense.mapper.template.TemplateCreateDTOReverseMapper;
 import org.aturkov.expense.mapper.template.TemplateDTOMapperV2;
-import org.aturkov.expense.service.other.DepositService;
+import org.aturkov.expense.service.deposit.DepositService;
 import org.aturkov.expense.service.template.TemplateService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -30,7 +30,7 @@ public class TemplateCreateController {
         try {
             model.addAttribute("template", new TemplateCreateDTOv1());
             model.addAttribute("templates", templateDTOMapperV2.convertCollection(templateService.getIncomeTemplate()));
-            model.addAttribute("deposits", depositDTOMapper.convertCollection(depositService.getDeposits()));
+            model.addAttribute("deposits", depositDTOMapper.convertCollection(depositService.findDeposits()));
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

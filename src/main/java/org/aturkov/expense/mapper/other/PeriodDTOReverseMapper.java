@@ -2,7 +2,7 @@ package org.aturkov.expense.mapper.other;
 
 import lombok.RequiredArgsConstructor;
 import org.aturkov.expense.domain.ValidityPeriod;
-import org.aturkov.expense.domain.ValidityPeriodDTOv1;
+import org.aturkov.expense.dto.ValidityPeriodDTOv1;
 import org.aturkov.expense.mapper.MapperContext;
 import org.aturkov.expense.mapper.SimpleDTOMapper;
 import org.springframework.stereotype.Component;

@@ -4,7 +4,7 @@ import lombok.Data;
 import lombok.experimental.Accessors;
 import org.aturkov.expense.domain.CurrencyType;
 import org.aturkov.expense.domain.ValidityPeriod;
-import org.aturkov.expense.domain.ValidityPeriodDTOv1;
+import org.aturkov.expense.dto.ValidityPeriodDTOv1;
 import org.aturkov.expense.dto.DTOConfig;
 import org.springframework.format.annotation.DateTimeFormat;
 

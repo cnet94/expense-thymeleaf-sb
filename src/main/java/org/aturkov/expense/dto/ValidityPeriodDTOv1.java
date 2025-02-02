@@ -1,13 +1,10 @@
-package org.aturkov.expense.domain;
+package org.aturkov.expense.dto;
 
 import lombok.Data;
-import lombok.Getter;
 import lombok.experimental.Accessors;
-import org.aturkov.expense.dto.DTOConfig;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import java.time.LocalDate;
-import java.util.Arrays;
 
 @Data
 @Accessors(chain = true)

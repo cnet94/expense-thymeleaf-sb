@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Deposit add form</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        .form-row {
+            display: flex;
+            gap: 10px; /* Уменьшите расстояние между полями */
+            align-items: flex-end; /* Выравнивание по нижнему краю */
+        }
+        .form-row .form-group {
+            flex: 0 0 auto; /* Поля не будут растягиваться */
+        }
+        .form-row .form-group label {
+            margin-bottom: 0; /* Уменьшите отступ снизу у меток */
+        }
+        .form-group {
+            max-width: 400px; /* Установите максимальную ширину для всех полей формы */
+        }
+        .form-control {
+            width: 100%; /* Поля будут занимать всю доступную ширину в пределах max-width */
+        }
+    </style>
+</head>
+<body>
+    <div class="container mt-5">
+        <h2>Deposit add form</h2>
+        <form action="#" th:action="@{/deposit/add}" th:object="${deposit}" method="post" class="mt-3">
+            <div class="form-group">
+                <label for="name">Name:</label>
+                <input class="form-control" type="text" id="name" th:field="*{name}" required>
+            </div>
+            <div id="amountGroup">
+                <div class="form-row">
+                    <div class="form-group col">
+                        <label for="amount">Сумма:</label>
+                        <input type="number" th:field="*{amount}" class="form-control" id="amount" style="width: 150px;" step="0.01" disabled>
+                    </div>
+                    <div class="form-group col">
+                        <label for="currencyType">Валюта:</label>
+                        <select class="form-control" name="currencyType" id="currencyType" th:field="*{currencyType}" style="width: 100px;">
+                            <option th:each="currencyOption : ${T(org.aturkov.expense.domain.CurrencyType).values()}"
+                                    th:value="${currencyOption}"
+                                    th:text="${currencyOption.getValue()}">
+                            </option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group mt-3">
+                <button type="submit" class="btn btn-primary">Save</button>
+                <button type="button" class="btn btn-secondary" onclick="history.back()">Back</button>
+            </div>
+        </form>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

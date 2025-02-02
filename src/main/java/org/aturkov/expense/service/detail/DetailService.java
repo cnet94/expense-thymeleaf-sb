@@ -16,7 +16,7 @@ import org.aturkov.expense.service.*;
 import org.aturkov.expense.service.attachment.AttachmentService;
 import org.aturkov.expense.service.history.HistoryService;
 import org.aturkov.expense.service.other.DateService;
-import org.aturkov.expense.service.other.DepositService;
+import org.aturkov.expense.service.deposit.DepositService;
 import org.aturkov.expense.service.template.TemplateService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
