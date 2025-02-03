@@ -80,9 +80,9 @@ public class TemplateEntity {
     @Column(name = "active")
     private Boolean active;
 
-//    @ManyToOne(fetch = FetchType.EAGER)
-//    @JoinColumn(name = "depend_template_id", referencedColumnName = "id", insertable = false, updatable = false)
-//    private TemplateEntity dependTemplateEntity;
+    @ManyToOne
+    @JoinColumn(name = "depend_template_id", referencedColumnName = "id", insertable = false, updatable = false)
+    private TemplateEntity dependTemplate;
 
     @OneToMany
     @JoinColumn(name = "template_id", insertable = false, updatable = false)
@@ -93,9 +93,6 @@ public class TemplateEntity {
     @JoinColumn(name = "deposit_id", insertable = false, updatable = false)
     @EqualsAndHashCode.Exclude
     private DepositEntity deposit;
-
-    @Transient
-    private TemplateEntity dependTemplate;
 
     @Transient
     private Timestamp tempPaymentDate;

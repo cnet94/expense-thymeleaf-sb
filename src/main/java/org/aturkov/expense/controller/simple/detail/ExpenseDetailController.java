@@ -112,10 +112,11 @@ public class ExpenseDetailController {
     @PostMapping("/detail/payment/approve/{detailId}")
     public String approveDetailPaymentV1(
             @PathVariable("detailId") UUID detailId,
+            @RequestParam("depositId") UUID depositId,
             @RequestParam("image") MultipartFile file) {
         ExpenseDetailDTOv1 ret;
         try {
-            ret = expenseDetailDTOMapper.convert(detailService.approvePaymentDetail(detailId, file));
+            ret = expenseDetailDTOMapper.convert(detailService.approvePaymentDetail(detailId, depositId, file));
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

@@ -70,16 +70,14 @@ public class DetailService extends EntitySecureFindServiceImpl<ExpenseDetailEnti
     }
 
     public void createExpenseDetail(TemplateEntity template) throws ServiceException {
-        ExpenseDetailEntity detail = fillingGeneralDetail(template);
-//        validationDetail(template);
-        // не создаем detail, потому что не позможно сейчас создать detail с ткущим template
-        if (!fillingAmountAndCurrency(template, detail))
-            return;
+        ExpenseDetailEntity newDetail = fillingGeneralDetail(template);
+
+        fillingAmountAndCurrency(template, newDetail);
 
         switch (template.getType()) {
-            case BASIC -> fillingExpenseWithTypeOneTime(template, detail);
-            case RECURRING -> fillingExpenseWithTypeRecurring(template, detail);
-            case FIXED -> fillingExpenseWithTypeCredit(template, detail);
+            case BASIC -> fillingExpenseWithTypeOneTime(template, newDetail);
+            case RECURRING -> fillingExpenseWithTypeRecurring(template, newDetail);
+            case FIXED -> fillingExpenseWithTypeCredit(template, newDetail);
         }
     }
 
@@ -127,7 +125,7 @@ public class DetailService extends EntitySecureFindServiceImpl<ExpenseDetailEnti
     }
 
     @Transactional
-    public ExpenseDetailEntity approvePaymentDetail(UUID detailId, MultipartFile file) throws IOException, ServiceException {
+    public ExpenseDetailEntity approvePaymentDetail(UUID detailId, UUID depositId, MultipartFile file) throws IOException, ServiceException {
         ExpenseDetailEntity detail = findExpenseDetail(detailId);
 
 //        boolean checkActualDate = dateService.checkActualPaymentPeriod(foundExpense);
@@ -183,28 +181,36 @@ public class DetailService extends EntitySecureFindServiceImpl<ExpenseDetailEnti
         expenseDetailRepository.save(detail);
     }
 
-    private boolean fillingAmountAndCurrency(TemplateEntity template, ExpenseDetailEntity detail) throws ServiceException {
-        LocalDate dateOfMonth = LocalDate.now().plusMonths(template.getPeriod().getOffset());
-        ValidityPeriod period = dateService.getPeriod(dateOfMonth);
-
-        if (!checkDetailHasPaidInPeriod(template.getDependTemplate(), period))
-            return false;
-
+    private void fillingAmountAndCurrency(TemplateEntity template, ExpenseDetailEntity newDetail) throws ServiceException {
         double sum = 0.0;
-        for (ExpenseDetailEntity dependDetail : template.getDependTemplate().getDetails()) {
-            if (Boolean.TRUE.equals(dependDetail.isPaid())
-                    && dependDetail.getFactPaymentDate() != null
-                    && dateService.dateIsIncludeInPeriod(dependDetail.getFactPaymentDate(), period))
-                        sum += dependDetail.getAmount();
-        }
+        if (template.getDependTemplateId() != null) {
+            LocalDate dateOfMonth = LocalDate.now().plusMonths(template.getPeriod().getOffset());
+            ValidityPeriod period = dateService.getPeriod(dateOfMonth);
 
-        detail
-                .setAmount(calculatePercent(sum, template.getPercent()))
-                .setCurrency(template.getCurrency());
-        return true;
+//        if (!checkDetailHasPaidInPeriod(template.getDependTemplate(), period))
+//            return false;
+
+            if (template.getDependTemplate().getDetails().isEmpty())
+                throw new ServiceException("На данный момент невозможно рассчитать сумму текущего платежа, потому что у шаблона нет деталей");
+
+            for (ExpenseDetailEntity dependDetail : template.getDependTemplate().getDetails()) {
+                if (Boolean.TRUE.equals(dependDetail.isPaid())
+                        && dependDetail.getFactPaymentDate() != null
+                        && dateService.dateIsIncludeInPeriod(dependDetail.getFactPaymentDate(), period))
+                    sum += dependDetail.getAmount();
+            }
+
+            newDetail.setAmount(calculatePercent(sum, template.getPercent()));
+        } else {
+            newDetail.setAmount(template.getAmount());
+        }
+        newDetail.setCurrency(template.getCurrency());
     }
 
     private boolean checkDetailHasPaidInPeriod(TemplateEntity dependTemplate, ValidityPeriod period) throws ServiceException {
+        if (dependTemplate == null)
+            return false;
+
         boolean exists = false;
         for (ExpenseDetailEntity detail : dependTemplate.getDetails()) {
             if (detail.isPaid()
@@ -241,7 +247,7 @@ public class DetailService extends EntitySecureFindServiceImpl<ExpenseDetailEnti
         }
     }
 
-    private ExpenseDetailEntity fillingGeneralDetail(TemplateEntity template) throws ServiceException {
+    private ExpenseDetailEntity fillingGeneralDetail(TemplateEntity template) {
         return new ExpenseDetailEntity()
                 .setTemplateId(template.getId())
                 .setName(template.getName())

@@ -116,6 +116,12 @@
                                 <div class="modal-body">
                                     <form th:action="@{/detail/payment/approve/{detailId}(detailId=${detail.id})}" method="post" enctype="multipart/form-data">
                                         <div class="form-group">
+                                            <select class="form-control" id="deposit" name="depositId" required>
+                                                <option value="">Выберите счет</option>
+                                                <option th:each="deposit : ${deposits}" th:value="${deposit.id}" th:text="${deposit.name}">Deposit</option>
+                                            </select>
+                                        </div>
+                                        <div class="form-group">
                                             <label for="image" class="form-label">Upload File:</label>
                                             <input type="file" name="image" accept="image/*" class="form-control-file" id="image">
                                         </div>

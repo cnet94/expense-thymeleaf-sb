@@ -141,16 +141,10 @@ public class TemplateService extends EntitySecureFindServiceImpl<TemplateEntity>
                     .setCurrency(template.getCurrency())
                     .setPercent(null);
         } else {
-            loadDependTemplate(template);
             template
                     .setAmount(null)
                     .setCurrency(template.getDependTemplate().getCurrency());
         }
-    }
-
-    private void loadDependTemplate(TemplateEntity template) throws ServiceException {
-        template.setDependTemplate(safeFindTemplate(template.getDependTemplateId(), FindMode.ifNullThrowsError));
-
     }
 
     private void fillingGeneralTemplate(TemplateEntity template) {
