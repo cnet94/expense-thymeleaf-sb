@@ -3,6 +3,7 @@ package org.aturkov.expense.service.template;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.aturkov.expense.domain.CurrencyType;
 import org.aturkov.expense.exception.ServiceException;
 import org.aturkov.expense.dao.detail.ExpenseDetailEntity;
 import org.aturkov.expense.dao.template.TemplateEntity;
@@ -34,6 +35,27 @@ public class TemplateService extends EntitySecureFindServiceImpl<TemplateEntity>
 
     @Override
     public boolean validateEntity(TemplateEntity entity, EntitySmartService.EntityValidateMode entityValidateMode) throws ServiceException {
+        if (templateRepository.existsByName(entity.getName()))
+            throw new ServiceException("Expense with same name already exists");
+        if (entity.getPaymentDate() != null)
+            dateService.checkDateInFuture(entity.getPaymentDate());
+        if (entity.getExpiryDate() != null)
+            dateService.checkDateInFuture(entity.getExpiryDate());
+        switch (entity.getType()) {
+            case BASIC -> {
+            }
+            case RECURRING -> {
+                checkAmountPositive(entity);
+                if (entity.getPaymentDay() == null)
+                    throw new ServiceException("Payment day is required");
+            }
+            case FIXED -> {
+                checkAmountPositive(entity);
+                dateService.checkPaymentDayCorrect(entity);
+                dateService.checkPaymentCountPositiveAndLimit(entity, 100);
+                dateService.checkPaymentDateNotNull(entity);
+            }
+        }
         return true;
     }
 
@@ -114,48 +136,51 @@ public class TemplateService extends EntitySecureFindServiceImpl<TemplateEntity>
     }
 
     public TemplateEntity createTemplate(TemplateEntity template) throws ServiceException {
-        validationTemplate(template);
+        validateEntity(template, EntitySmartService.EntityValidateMode.beforeSave);
         fillingTemplate(template);
         TemplateEntity dbTemplate = templateRepository.save(template);
+        if (dbTemplate.getType().equals(TemplateEntity.Type.BASIC))
+            return dbTemplate;
         dbTemplate.setPaymentInCurrentMonth(template.isPaymentInCurrentMonth());
         detailService.createDetail(dbTemplate);
         return dbTemplate;
     }
 
-    private void fillingTemplate(TemplateEntity template) throws ServiceException {
+    private void fillingTemplate(TemplateEntity template) {
         fillingGeneralTemplate(template);
         fillingAmountOrPercent(template);
-
         switch (template.getType()) {
             case BASIC -> fillingTemplateOneTime(template);
             case RECURRING -> fillingTemplateRecurring(template);
             case FIXED -> fillingTemplateCredit(template);
-//            case INCOME -> fillingIncome(template);
         }
     }
 
-    private void fillingAmountOrPercent(TemplateEntity template) throws ServiceException {
+    private void fillingAmountOrPercent(TemplateEntity template) {
+        if (template.getType().equals(TemplateEntity.Type.BASIC))
+            return;
         if (template.getAmount() != null) {
             template
                     .setAmount(template.getAmount())
                     .setCurrency(template.getCurrency())
                     .setPercent(null);
         } else {
-            template
-                    .setAmount(null)
-                    .setCurrency(template.getDependTemplate().getCurrency());
+            if (template.getDependTemplateId() != null)
+                template
+                        .setAmount(null)
+                        .setCurrency(template.getDependTemplate().getCurrency());
+            else
+                template.setAmount(null)
+                        .setCurrency(CurrencyType.BYN);
         }
     }
 
     private void fillingGeneralTemplate(TemplateEntity template) {
         template
                 .setOperationType(template.getOperationType())
+                .setType(template.getType())
                 .setDetails(new ArrayList<>())
                 .setActive(true);;
-    }
-
-    private void fillingIncome(TemplateEntity template) {
-
     }
 
     private void fillingTemplateCredit(TemplateEntity template) {
@@ -168,45 +193,20 @@ public class TemplateService extends EntitySecureFindServiceImpl<TemplateEntity>
     }
 
     private void fillingTemplateRecurring(TemplateEntity template) {
-//        template
-//                .setPaymentCount(null);
     }
 
-    private void fillingTemplateOneTime(TemplateEntity template) throws ServiceException {
+    private void fillingTemplateOneTime(TemplateEntity template) {
         template
                 //todo check where user getDetailAmount
-//                .setDetailAmount(template.getAmount())
+                .setCurrency(null)
                 .setPaymentCount(null)
                 .setPaymentDay(null)
+                .setPeriod(null)
+                .setWeekend(null)
                 .setTempPaymentDate(template.getPaymentDate())
+                .setTemplatePeriodId(null)
                 .setPaymentDate(null)
                 .setExpiryDate(null);
-    }
-
-    private void validationTemplate(TemplateEntity template) throws ServiceException {
-        if (templateRepository.existsByName(template.getName()))
-            throw new ServiceException("Expense with same name already exists");
-        if (template.getPaymentDate() != null)
-            dateService.checkDateInFuture(template.getPaymentDate());
-        if (template.getExpiryDate() != null)
-            dateService.checkDateInFuture(template.getExpiryDate());
-        switch (template.getType()) {
-            case BASIC -> {
-                if (template.getAmount() == null &&  template.getPercent() == null)
-                    throw new ServiceException("Amount or percent not be null");
-            }
-            case RECURRING -> {
-                checkAmountPositive(template);
-                if (template.getPaymentDay() == null)
-                    throw new ServiceException("Payment day is required");
-            }
-            case FIXED -> {
-                checkAmountPositive(template);
-                dateService.checkPaymentDayCorrect(template);
-                dateService.checkPaymentCountPositiveAndLimit(template, 100);
-                dateService.checkPaymentDateNotNull(template);
-            }
-        }
     }
 
     public void fillingGeneralBalance(TemplateEntity templateEntity) {
@@ -227,9 +227,23 @@ public class TemplateService extends EntitySecureFindServiceImpl<TemplateEntity>
                 .sum();
     }
 
+    private void checkAmountOrPercent(TemplateEntity template) throws ServiceException {
+        if (template.getAmount() != null)
+            checkAmountPositive(template);
+        else if (template.getPercent() != null)
+            checkPercentPositive(template);
+        else
+            throw new ServiceException("Amount or percent not bot be null");
+    }
+
     private void checkAmountPositive(TemplateEntity expense) throws ServiceException {
-        if (expense.getAmount() != null && expense.getAmount() < 0)
-            throw new ServiceException("Amount must be positive");
+        if (expense.getAmount() < 0)
+            throw new ServiceException("Amount is not positive");
+    }
+
+    private void checkPercentPositive(TemplateEntity expense) throws ServiceException {
+        if (expense.getPercent() < 0)
+            throw new ServiceException("Percent is not positive");
     }
 
     private void fillingTemplateReminder(TemplateEntity template) {

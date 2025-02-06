@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.Accessors;
 import lombok.extern.slf4j.Slf4j;
+import org.aturkov.expense.domain.TemplatePeriod;
 import org.aturkov.expense.exception.ServiceException;
 import org.aturkov.expense.dao.historytransaction.HistoryTransactionEntity;
 import org.aturkov.expense.dao.template.TemplateEntity;
@@ -71,9 +72,7 @@ public class DetailService extends EntitySecureFindServiceImpl<ExpenseDetailEnti
 
     public void createExpenseDetail(TemplateEntity template) throws ServiceException {
         ExpenseDetailEntity newDetail = fillingGeneralDetail(template);
-
         fillingAmountAndCurrency(template, newDetail);
-
         switch (template.getType()) {
             case BASIC -> fillingExpenseWithTypeOneTime(template, newDetail);
             case RECURRING -> fillingExpenseWithTypeRecurring(template, newDetail);
@@ -201,6 +200,15 @@ public class DetailService extends EntitySecureFindServiceImpl<ExpenseDetailEnti
             }
 
             newDetail.setAmount(calculatePercent(sum, template.getPercent()));
+        } else if (template.getTemplatePeriodId() != null) {
+            if (template.getTemplatePeriodId().equals(TemplatePeriod.INCOME_LAST_MONTH)) {
+                YearMonth date = YearMonth.from(LocalDate.now().minusMonths(1));
+                List<ExpenseDetailEntity> details = expenseDetailRepository.findByPaymentDateAndPaid(date.getMonthValue(), date.getYear());
+                sum = details.stream().mapToDouble(ExpenseDetailEntity::getAmount).sum();
+                newDetail.setAmount(calculatePercent(sum, template.getPercent()));
+            } else if (template.getTemplatePeriodId().equals(TemplatePeriod.EXPENSE_LAST_MONTH)) {
+                //todo not implemented
+            }
         } else {
             newDetail.setAmount(template.getAmount());
         }
@@ -222,11 +230,11 @@ public class DetailService extends EntitySecureFindServiceImpl<ExpenseDetailEnti
         return exists;
     }
 
-    private Double calculatePercent(Double amount, Double percent) {
-        if (amount == null || percent == null) {
-            throw new IllegalArgumentException("Amount and percent must not be null");
-        }
-        return (amount * percent) / 100;
+    private Double calculatePercent(Double amount, Double percent) throws ServiceException {
+        if (amount == null || percent == null)
+            throw new ServiceException("Amount and percent must not be null");
+        double result = (amount * percent) / 100;
+        return Math.round(result * 100) / 100.0;
     }
 
     private void fillingExpenseWithTypeOneTime(TemplateEntity template, ExpenseDetailEntity detail) {
@@ -307,7 +315,7 @@ public class DetailService extends EntitySecureFindServiceImpl<ExpenseDetailEnti
         int currentMonth = currentDate.getMonthValue();
         int currentYear = currentDate.getYear();
         //todo заменить поиском
-        List<ExpenseDetailEntity> byPaymentDateInCurrentMonth = expenseDetailRepository.findByPaymentDateAndNotPaidInCurrentMonth(currentMonth, currentYear);
+        List<ExpenseDetailEntity> byPaymentDateInCurrentMonth = expenseDetailRepository.findByPaymentDateAndNotPaid(currentMonth, currentYear);
         byPaymentDateInCurrentMonth.sort(Comparator.comparing(ExpenseDetailEntity::getPlanPaymentDate));
         return byPaymentDateInCurrentMonth;
     }
@@ -316,7 +324,7 @@ public class DetailService extends EntitySecureFindServiceImpl<ExpenseDetailEnti
         LocalDate currentDate = LocalDate.now();
         int currentMonth = currentDate.getMonthValue();
         int currentYear = currentDate.getYear();
-        List<ExpenseDetailEntity> byPaymentDateInCurrentMonth = expenseDetailRepository.findByPaymentDateAndNotPaidInCurrentMonth(currentMonth, currentYear);
+        List<ExpenseDetailEntity> byPaymentDateInCurrentMonth = expenseDetailRepository.findByPaymentDateAndNotPaid(currentMonth, currentYear);
         byPaymentDateInCurrentMonth.sort(Comparator.comparing(ExpenseDetailEntity::getPlanPaymentDate));
         return byPaymentDateInCurrentMonth;
     }

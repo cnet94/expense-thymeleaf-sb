@@ -4,6 +4,7 @@ import lombok.Data;
 import lombok.experimental.Accessors;
 import org.aturkov.expense.dao.template.TemplateEntity;
 import org.aturkov.expense.domain.CurrencyType;
+import org.aturkov.expense.domain.TemplatePeriod;
 import org.aturkov.expense.domain.ValidityPeriod;
 import org.aturkov.expense.dto.DTOConfig;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -12,7 +13,6 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
-import static org.aturkov.expense.dao.template.TemplateEntity.Type.BASIC;
 import static org.aturkov.expense.domain.ValidityPeriod.Time.NONE;
 
 
@@ -24,12 +24,13 @@ public class TemplateDTOv1 {
     public Double percent;
     public CurrencyType currency;
     public TemplateEntity.OperationType operationType;
-    public TemplateEntity.Type type = BASIC;
-    public ValidityPeriod.Time period = NONE;
-    public Integer paymentCount = 1;
-    public Integer paymentDay = 1;
+    public TemplateEntity.Type type;
+    public ValidityPeriod.Time period;
+    public TemplatePeriod templatePeriod;
+    public Integer paymentCount;
+    public Integer paymentDay;
     public Boolean weekend;
-    public UUID dependTemplateId = null;
+    public UUID dependTemplateId;
     public UUID depositId;
     @DateTimeFormat(pattern = DTOConfig.DATE_FORMAT)
     public LocalDate paymentDate;

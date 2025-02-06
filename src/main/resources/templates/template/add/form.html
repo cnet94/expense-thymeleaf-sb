@@ -8,7 +8,7 @@
     <script>
         function toggleFields() {
             var type = document.getElementById("type").value;
-            var paymentGroups = document.querySelectorAll(".payment-group");
+            var paymentGroups = document.querySelectorAll(".not-basic-group");
 
             paymentGroups.forEach(function(group) {
                 if (type === 'BASIC') {
@@ -19,28 +19,28 @@
             });
         }
 
-        function toggleAmountOrPercent() {
-            var type = document.querySelector('input[name="type"]:checked').value;
-            var amountGroup = document.getElementById("amountGroup");
-            var percentGroup = document.getElementById("percentGroup");
-
-            if (type === 'amount') {
-                amountGroup.style.display = 'block';
-                percentGroup.style.display = 'none';
-            } else {
-                amountGroup.style.display = 'none';
-                percentGroup.style.display = 'block';
-            }
-        }
+        // function toggleAmountOrPercent() {
+        //     var type = document.querySelector('input[name="type"]:checked').value;
+        //     var amountGroup = document.getElementById("amountGroup");
+        //     var percentGroup = document.getElementById("percentGroup");
+        //
+        //     if (type === 'amount') {
+        //         amountGroup.style.display = 'block';
+        //         percentGroup.style.display = 'none';
+        //     } else {
+        //         amountGroup.style.display = 'none';
+        //         percentGroup.style.display = 'block';
+        //     }
+        // }
 
         window.onload = function() {
             toggleFields();
             document.getElementById("type").addEventListener("change", toggleFields);
 
-            toggleAmountOrPercent();
-            document.querySelectorAll('input[name="type"]').forEach(function(elem) {
-                elem.addEventListener("change", toggleAmountOrPercent);
-            });
+            // toggleAmountOrPercent();
+            // document.querySelectorAll('input[name="type"]').forEach(function(elem) {
+            //     elem.addEventListener("change", toggleAmountOrPercent);
+            // });
         };
     </script>
     <style>
@@ -90,11 +90,20 @@
                 ></option>
             </select>
         </div>
+<!--        <div class="form-group">-->
+<!--            <label for="type">Тип платежа:</label>-->
+<!--            <select class="form-control" name="type" id="type" th:field="*{type}" onchange="toggleFields()">-->
+<!--                <option th:each="typeOption : ${typeOptions}"-->
+<!--                        th:value="${typeOption.name()}"-->
+<!--                        th:text="${typeOption.alias}"-->
+<!--                ></option>-->
+<!--            </select>-->
+<!--        </div>-->
         <div class="form-group">
             <label for="name">Название:</label>
             <input type="text" th:field="*{name}" class="form-control" id="name" required>
         </div>
-        <div class="form-group">
+        <div class="form-group not-basic-group">
             <label>Тип ввода:</label>
             <div>
                 <input type="radio" id="amountType" name="type" value="amount" checked>
@@ -103,7 +112,7 @@
                 <label for="percentType">Процент</label>
             </div>
         </div>
-        <div id="amountGroup">
+        <div class="form-group not-basic-group" id="amountGroup">
             <div class="form-row">
                 <div class="form-group col">
                     <label for="amount">Сумма:</label>
@@ -119,7 +128,7 @@
                 </div>
             </div>
         </div>
-        <div id="percentGroup" style="display: none;">
+        <div class="not-basic-group" id="percentGroup" style="display: none;">
             <div class="form-row">
                 <div class="form-group col">
                     <label for="percent">Процент:</label>
@@ -132,15 +141,25 @@
                         <option th:each="template : ${templates}" th:value="${template.id}" th:text="${template.name}">Template</option>
                     </select>
                 </div>
+                <div class="form-group col">
+                    <label for="templatePeriod">Шаблон периода:</label>
+                    <select class="form-control" name="templatePeriod" id="templatePeriod" th:field="*{templatePeriod}">
+                        <option th:each="templatePeriod : ${T(org.aturkov.expense.domain.TemplatePeriod).values()}"
+                                th:value="${templatePeriod}"
+                                th:text="${templatePeriod.alias}"
+                        ></option>
+                    </select>
+                </div>
             </div>
         </div>
-        <div class="form-group">
+        <div class="form-group not-basic-group">
+            <label for="deposit">Счет:</label>
             <select class="form-control" name="deposit" id="deposit" th:field="*{depositId}">
                 <option value="">Выберите счет</option>
                 <option th:each="deposit : ${deposits}" th:value="${deposit.id}" th:text="${deposit.name}">Deposit</option>
             </select>
         </div>
-        <div class="form-group">
+        <div class="form-group not-basic-group">
             <label for="period">Период оплаты:</label>
             <select class="form-control" name="period" id="period" th:field="*{period}">
                 <option th:each="periodOption : ${T(org.aturkov.expense.domain.ValidityPeriod.Time).values()}"
@@ -149,32 +168,32 @@
                 ></option>
             </select>
         </div>
-        <div class="form-group payment-group" >
+        <div class="form-group not-basic-group" >
             <label for="paymentCount">Количество платежей:</label>
-            <input type="number" th:field="*{paymentCount}" class="form-control" id="paymentCount" required>
+            <input type="number" th:field="*{paymentCount}" class="form-control" id="paymentCount">
         </div>
-        <div class="form-group payment-group">
+        <div class="form-group not-basic-group">
             <label for="paymentDay">Платежный день:</label>
-            <input type="number" th:field="*{paymentDay}" class="form-control" id="paymentDay" required>
+            <input type="number" th:field="*{paymentDay}" class="form-control" id="paymentDay">
         </div>
-        <div class="form-check form-switch payment-group">
+        <div class="form-check form-switch not-basic-group">
             <input class="form-check-input" type="checkbox" th:field="*{weekend}" id="flexSwitchCheckChecked">
             <label class="form-check-label" for="flexSwitchCheckChecked">Дата оплаты до выходных</label>
         </div>
-        <div class="form-group">
+        <div class="form-group not-basic-group">
             <label for="paymentDate">Дата первого платежа:</label>
             <input type="date" th:field="*{paymentDate}" class="form-control" id="paymentDate">
         </div>
-        <div class="form-check form-switch payment-group">
+        <div class="form-check form-switch not-basic-group">
             <input class="form-check-input" type="checkbox" th:field="*{paymentInCurrentMonth}" id="flexSwitchCheck">
             <label class="form-check-label" for="flexSwitchCheck">Дополнительный платеж в месяце (в платежный день)</label>
         </div>
-        <div class="form-group payment-group">
+        <div class="form-group not-basic-group">
             <label for="expiryDate">Конченый срок оплаты:</label>
             <input type="date" th:field="*{expiryDate}" class="form-control" id="expiryDate">
         </div>
         <div class="form-group mt-3">
-            <button type="submit" class="btn btn-primary">Add</button>
+            <button type="submit" class="btn btn-primary">Добавить</button>
         </div>
     </form>
 </div>

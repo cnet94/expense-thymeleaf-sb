@@ -15,6 +15,9 @@ public interface ExpenseDetailRepository extends CrudRepository<ExpenseDetailEnt
 
     void deleteAllByIdIn(List<UUID> ids);
 
+    @Query("SELECT ed FROM ExpenseDetailEntity ed WHERE (MONTH(ed.planPaymentDate) = :month) AND YEAR(ed.planPaymentDate) = :year AND ed.paid = true")
+    List<ExpenseDetailEntity> findByPaymentDateAndPaid(@Param("month") int month, @Param("year") int year);
+
     @Query("SELECT ed FROM ExpenseDetailEntity ed WHERE (MONTH(ed.planPaymentDate) = :month) AND YEAR(ed.planPaymentDate) = :year AND ed.paid = false")
-    List<ExpenseDetailEntity> findByPaymentDateAndNotPaidInCurrentMonth(@Param("month") int month, @Param("year") int year);
+    List<ExpenseDetailEntity> findByPaymentDateAndNotPaid(@Param("month") int month, @Param("year") int year);
 }

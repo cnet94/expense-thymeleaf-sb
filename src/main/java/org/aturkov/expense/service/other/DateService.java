@@ -89,7 +89,7 @@ public class DateService {
 
     public LocalDate nextPaymentDate(TemplateEntity template) {
         //todo do other periods (now ONE month)
-        boolean weekend = template.isWeekend();
+        boolean weekend = template.getWeekend();
         int paymentDay = template.getPaymentDay();
 
         if (!template.getDetails().isEmpty()) {
@@ -114,7 +114,7 @@ public class DateService {
     public LocalDate nextPaymentDateForCredit(TemplateEntity template, Timestamp lastPaymentDate) {
         //todo support different period (user choose), now supported only ONE MONTH (Release 2)
         int planPaymentDay = template.getPaymentDay();
-        boolean weekend = template.isWeekend();
+        boolean weekend = template.getWeekend();
 
         // если текщий платеж является вторым в месяце и включен режим расчет с учетом выходных (оплата до выходных),
         // проверяется что второй платеж не совершится в тот же день (что и платеж перед ним)
@@ -169,7 +169,7 @@ public class DateService {
     }
 
     public static Timestamp convertToTimestamp(LocalDate localDate) {
-        return Timestamp.valueOf(localDate.atStartOfDay());
+        return localDate != null ? Timestamp.valueOf(localDate.atStartOfDay()) : null;
     }
 
     public static Timestamp convertToTimestamp(LocalDateTime localDateTime) {

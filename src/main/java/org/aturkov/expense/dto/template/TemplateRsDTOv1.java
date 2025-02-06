@@ -20,8 +20,8 @@ public class TemplateRsDTOv1 {
     public UUID id;
     public Boolean expense;
     public String name;
-    public TemplateEntity.OperationType operationType;
-    public TemplateEntity.Type type;
+    public String operationType;
+    public String type;
     public String period;
     public Double amount;
     public CurrencyType currency;

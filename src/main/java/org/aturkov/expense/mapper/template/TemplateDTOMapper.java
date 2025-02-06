@@ -31,15 +31,15 @@ public class TemplateDTOMapper extends SimpleDTOMapper<TemplateEntity, TemplateR
                 .setName(src.getName())
                 .setAmount(src.getAmount() != null ? src.getDetailAmount() : null)
                 .setCurrency(src.getCurrency())
-                .setOperationType(src.getOperationType())
-                .setType(src.getType())
+                .setOperationType(src.getOperationType().getAlias())
+                .setType(src.getType().getAlias())
                 .setPeriod(ValidityPeriod.Time.getCurrentName(src.getPeriod()))
                 .setPaymentCount(src.getPaymentCount())
                 .setPaymentDay(src.getPaymentDay() != null ? src.getPaymentDay() : null)
                 .setBalance(balanceDTOMapper.convert(src.getGeneralBalance()))
                 .setPaymentDate(convertToLocaleDate(src.getPaymentDate()))
                 .setExpiryDate(convertToLocaleDateTime(src.getExpiryDate()))
-                .setCreateAt(convertToLocaleDateTime(src.getCreateAt()));
+                .setCreateAt(convertToLocaleDateTime(src.getCreatedAt()));
         if (src.getDetails() != null)
             dst.setDetails(expenseDetailDTOMapper.convertCollection(src.getDetails()));
     }

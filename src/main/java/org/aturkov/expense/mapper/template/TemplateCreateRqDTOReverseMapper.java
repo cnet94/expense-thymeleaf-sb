@@ -12,7 +12,7 @@ import static org.aturkov.expense.service.other.DateService.convertToTimestamp;
 
 @Component
 @RequiredArgsConstructor
-public class TemplateCreateDTOReverseMapper extends SimpleDTOMapper<TemplateCreateDTOv1, TemplateEntity> {
+public class TemplateCreateRqDTOReverseMapper extends SimpleDTOMapper<TemplateCreateDTOv1, TemplateEntity> {
 
     @Override
     public void map(TemplateCreateDTOv1 src, TemplateEntity dst, MapperContext mapperContext) {
@@ -28,10 +28,11 @@ public class TemplateCreateDTOReverseMapper extends SimpleDTOMapper<TemplateCrea
                 .setPaymentDay(src.getPaymentDay())
                 .setWeekend(src.getWeekend())
                 .setDependTemplateId(src.getDependTemplateId())
+                .setTemplatePeriodId(src.getTemplatePeriod())
                 .setDepositId(src.getDepositId())
                 .setPaymentInCurrentMonth(src.isPaymentInCurrentMonth())
                 .setPaymentDate(convertToTimestamp(src.getPaymentDate()))
                 .setExpiryDate(convertToTimestamp(src.getExpiryDate()))
-                .setCreateAt(convertToTimestamp(src.getCreateAt()));
+                .setCreatedAt(convertToTimestamp(src.getCreateAt()));
     }
 }

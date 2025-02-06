@@ -8,6 +8,7 @@ import org.aturkov.expense.dao.deposit.DepositEntity;
 import org.aturkov.expense.dao.detail.ExpenseDetailEntity;
 import org.aturkov.expense.domain.Balance;
 import org.aturkov.expense.domain.CurrencyType;
+import org.aturkov.expense.domain.TemplatePeriod;
 import org.aturkov.expense.domain.ValidityPeriod;
 import org.hibernate.annotations.CreationTimestamp;
 
@@ -15,6 +16,7 @@ import java.sql.Timestamp;
 import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Entity
 @Data
@@ -64,10 +66,14 @@ public class TemplateEntity {
     private Timestamp expiryDate;
 
     @Column(name = "weekend")
-    private boolean weekend;
+    private Boolean weekend;
 
     @Column(name = "depend_template_id")
     private UUID dependTemplateId;
+
+    @Column(name = "template_period_id")
+    @Enumerated(EnumType.STRING)
+    private TemplatePeriod templatePeriodId;
 
     @Column(name = "deposit_id")
     private UUID depositId;
@@ -75,24 +81,25 @@ public class TemplateEntity {
     @CreationTimestamp
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "created_at")
-    private Timestamp createAt;
+    private Timestamp createdAt;
 
     @Column(name = "active")
     private Boolean active;
 
+    @EqualsAndHashCode.Exclude
     @ManyToOne
     @JoinColumn(name = "depend_template_id", referencedColumnName = "id", insertable = false, updatable = false)
     private TemplateEntity dependTemplate;
 
+    @EqualsAndHashCode.Exclude
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "deposit_id", referencedColumnName = "id", insertable = false, updatable = false)
+    private DepositEntity deposit;
+
+    @EqualsAndHashCode.Exclude
     @OneToMany
     @JoinColumn(name = "template_id", insertable = false, updatable = false)
-    @EqualsAndHashCode.Exclude
     private List<ExpenseDetailEntity> details;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "deposit_id", insertable = false, updatable = false)
-    @EqualsAndHashCode.Exclude
-    private DepositEntity deposit;
 
     @Transient
     private Timestamp tempPaymentDate;
@@ -112,8 +119,8 @@ public class TemplateEntity {
     @Getter
     public enum OperationType {
         INCOME("Доход"),
-        EXPENSE("Расход"),
-        TRANSFER("Трансфер");
+        EXPENSE("Расход");
+//        TRANSFER("Трансфер");
 
         private final String alias;
 
@@ -136,12 +143,11 @@ public class TemplateEntity {
             this.order = order;
         }
 
-        public static String getCurrentAlias(String type) {
-            return Arrays.stream(Type.values()).filter(t -> t.alias.equals(type)).findAny().orElse(BASIC).getAlias();
-        }
-
-        public static Type getCurrentType(Type type) {
-            return Arrays.stream(Type.values()).filter(t -> t.equals(type)).findAny().orElse(BASIC);
+        public static List<Type> getTypeList() {
+            List<Type> excludeTypes = List.of(Type.BASIC);
+            return Arrays.stream(Type.values())
+                    .filter(t -> !excludeTypes.contains(t))
+                    .collect(Collectors.toList());
         }
     }
 }

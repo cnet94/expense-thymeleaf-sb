@@ -4,7 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.aturkov.expense.dao.template.TemplateEntity;
 import org.aturkov.expense.dto.template.TemplateCreateDTOv1;
 import org.aturkov.expense.mapper.deposit.DepositDTOMapper;
-import org.aturkov.expense.mapper.template.TemplateCreateDTOReverseMapper;
+import org.aturkov.expense.mapper.template.TemplateCreateRqDTOReverseMapper;
 import org.aturkov.expense.mapper.template.TemplateDTOMapperV2;
 import org.aturkov.expense.service.deposit.DepositService;
 import org.aturkov.expense.service.template.TemplateService;
@@ -22,7 +22,7 @@ public class TemplateCreateController {
     private final TemplateService templateService;
     private final TemplateDTOMapperV2 templateDTOMapperV2;
     private final DepositDTOMapper depositDTOMapper;
-    private final TemplateCreateDTOReverseMapper templateCreateDTOReverseMapper;
+    private final TemplateCreateRqDTOReverseMapper templateCreateRqDTOReverseMapper;
     private final DepositService depositService;
 
     @GetMapping("/template/add/form")
@@ -31,6 +31,7 @@ public class TemplateCreateController {
             model.addAttribute("template", new TemplateCreateDTOv1());
             model.addAttribute("templates", templateDTOMapperV2.convertCollection(templateService.getIncomeTemplate()));
             model.addAttribute("deposits", depositDTOMapper.convertCollection(depositService.findDeposits()));
+//            model.addAttribute("typeOptions", TemplateEntity.Type.getTypeList());
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -43,7 +44,7 @@ public class TemplateCreateController {
             RedirectAttributes redirectAttributes) {
         TemplateEntity templateEntity;
         try {
-            templateEntity = templateService.createTemplate(templateCreateDTOReverseMapper.convert(request));
+            templateEntity = templateService.createTemplate(templateCreateRqDTOReverseMapper.convert(request));
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("errorMessage", "Error retrieving template: " + e.getMessage());
             return "redirect:/template/add/form";
