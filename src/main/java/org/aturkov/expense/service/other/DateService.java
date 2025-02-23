@@ -56,7 +56,9 @@ public class DateService {
 //        return true;
     }
 
-    public void fillingPeriod(ExpenseDetailEntity detail) {;
+    public void fillingPeriod(ExpenseDetailEntity detail) {
+        if (detail.getPeriod() == null)
+            return;
         YearMonth targetMonth = YearMonth.from(detail.getPlanPaymentDate().toLocalDateTime()).plusMonths(detail.getPeriod().getOffset());
         detail
                 .setPeriodDateFrom(convertToTimestamp(targetMonth.atDay(1)))

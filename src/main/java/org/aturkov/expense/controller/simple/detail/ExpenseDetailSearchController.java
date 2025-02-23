@@ -15,8 +15,6 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class ExpenseDetailSearchController {
     private final DetailService detailService;
-    private final ExpenseDetailDTOMapper expenseDetailDTOMapper;
-    private final ExpenseDetailSaveDTOReverseMapper expenseDetailSaveDTOReverseMapper;
     private final ExpenseDetailUpdateDTOReverseMapper expenseDetailUpdateDTOReverseMapper;
 
     @PostMapping("/detail/search/V1")
@@ -28,6 +26,6 @@ public class ExpenseDetailSearchController {
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
-        return "redirect:/template/card/" + request.getTemplateId();
+        return "redirect:/template/card/" + request.getDetail().getTemplateId();
     }
 }

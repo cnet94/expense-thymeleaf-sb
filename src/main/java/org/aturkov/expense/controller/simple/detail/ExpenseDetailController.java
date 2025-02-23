@@ -1,15 +1,15 @@
 package org.aturkov.expense.controller.simple.detail;
 
 import lombok.RequiredArgsConstructor;
+import org.aturkov.expense.dto.detail.*;
 import org.aturkov.expense.exception.ServiceException;
 import org.aturkov.expense.dao.detail.ExpenseDetailEntity;
-import org.aturkov.expense.dto.detail.ExpenseDetailDTOv1;
-import org.aturkov.expense.dto.detail.ExpenseDetailSaveRqDTOv1;
-import org.aturkov.expense.dto.detail.ExpenseDetailUpdateRqDTOv1;
-import org.aturkov.expense.mapper.detail.ExpenseDetailDTOMapper;
-import org.aturkov.expense.mapper.detail.ExpenseDetailSaveDTOReverseMapper;
-import org.aturkov.expense.mapper.detail.ExpenseDetailUpdateDTOReverseMapper;
+import org.aturkov.expense.mapper.deposit.DepositDTOMapper;
+import org.aturkov.expense.mapper.detail.*;
+import org.aturkov.expense.mapper.item.ItemDTOMapper;
+import org.aturkov.expense.service.deposit.DepositService;
 import org.aturkov.expense.service.detail.DetailService;
+import org.aturkov.expense.service.item.ItemService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -23,107 +23,122 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class ExpenseDetailController {
     private final DetailService detailService;
-    private final ExpenseDetailDTOMapper expenseDetailDTOMapper;
-    private final ExpenseDetailSaveDTOReverseMapper expenseDetailSaveDTOReverseMapper;
+    private final ExpenseDetailDTOMapperV2 expenseDetailDTOMapperV2;
     private final ExpenseDetailUpdateDTOReverseMapper expenseDetailUpdateDTOReverseMapper;
+    private final ExpenseDetailCreateDTOReverseMapper expenseDetailCreateDTOReverseMapper;
+    private final ItemDTOMapper itemDTOMapper;
+    private final ItemService itemService;
+    private final DepositDTOMapper depositDTOMapper;
+    private final DepositService depositService;
 
     @GetMapping("/detail/list")
-    public String showExpenseDetailsList(Model model) {
-        List<ExpenseDetailDTOv1> list;
+    public String showDetails(
+            Model model) {
+        ExpenseDetailListRsDTOv1 rs = new ExpenseDetailListRsDTOv1();
         try {
-            list = expenseDetailDTOMapper.convertCollection(detailService.getExpenseDetailsForCurrentMonth());
+            List<ExpenseDetailEntity> list = detailService.getExpenseDetailsForCurrentMonth();
+            rs
+                    .setDetails(expenseDetailDTOMapperV2.convertCollection(list));
+            model.addAttribute("expenseDetails", rs);
+            model.addAttribute("deposits", depositDTOMapper.convertCollection(depositService.findDeposits()));
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
-        model.addAttribute("expenseDetails", list);
         return "/detail/list";
     }
 
-    @GetMapping("/detail/add")
-    public String showAddExpenseDetailForm(
-            @RequestParam("templateId") UUID templateId,
+    @GetMapping("/detail/create-form")
+    public String showAddDetailForm(
+            Model model) {
+        ExpenseDetailCreateRqDTOv1 rs = new ExpenseDetailCreateRqDTOv1();
+        try {
+            model.addAttribute("expenseDetail", rs.setDetail(new ExpenseDetailSaveDTOv1()));
+            model.addAttribute("items", itemDTOMapper.convertCollection(itemService.findItems()));
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+        return "/detail/create-form";
+    }
+
+    @GetMapping("/detail/add/template/{templateId}/form")
+    public String showAddExpenseDetailFormForTemplate(
+            @PathVariable("templateId") UUID templateId,
             @RequestParam("name") String name,
             Model model) {
         model.addAttribute("expenseDetail",
                 new ExpenseDetailDTOv1()
                         .setTemplateId(templateId)
                         .setName(name));
-        return "/detail/create/card";
+        return "/detail/card";
     }
 
-    @PostMapping("/detail/add")
-    public String createExpenseDetail(@ModelAttribute("expenseDetail") ExpenseDetailSaveRqDTOv1 detail) {
+    @PostMapping("/detail/save")
+    public String saveDetail(
+            ExpenseDetailCreateRqDTOv1 request) {
         try {
-            detailService.createExpenseDetail(expenseDetailSaveDTOReverseMapper.convert(detail));
+            ExpenseDetailEntity detail = expenseDetailCreateDTOReverseMapper.convert(request);
+            detailService.createExpenseDetail(detail);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
-        return "redirect:/template/card/" + detail.getTemplateId();
+        return "redirect:/detail/list";
+//        return "redirect:/template/card/" + request.getDetail().getTemplateId();
     }
 
-    @GetMapping("/detail/edit/{detailId}")
+    @GetMapping("/detail/update/{detailId}/v1")
     public String showUpdateForm(
             @PathVariable("detailId") UUID detailId,
             Model model) {
-        ExpenseDetailDTOv1 expenseDetail;
+        ExpenseDetailSaveRsDTOv1 rs = new ExpenseDetailSaveRsDTOv1();
         try {
-            expenseDetail = expenseDetailDTOMapper.convert(detailService.findExpenseDetail(detailId));
-            model.addAttribute("expenseDetail", expenseDetail);
+            rs
+                    .setDetail(expenseDetailDTOMapperV2.convert(detailService.findExpenseDetail(detailId)));
+            model.addAttribute("rs", rs);
         } catch (ServiceException e) {
             model.addAttribute("errorMessage", "Error");
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
-        return "/detail/update/card";
+        return "/detail/update-form";
     }
 
-    @PostMapping("/detail/save")
-    public String saveExpenseDetail(
-            ExpenseDetailSaveRqDTOv1 request) {
-        try {
-            ExpenseDetailEntity detailForSave = expenseDetailSaveDTOReverseMapper.convert(request);
-            detailService.createExpenseDetail(detailForSave);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-        return "redirect:/template/card/" + request.getTemplateId();
-    }
-
-    @PostMapping("/detail/update")
-    public String updateExpenseDetail(
+    @PostMapping("/detail/update/{detailId}")
+    public String updateDetailV1(
+            @PathVariable("detailId") UUID detailId,
             ExpenseDetailUpdateRqDTOv1 request) {
         try {
             ExpenseDetailEntity detail = expenseDetailUpdateDTOReverseMapper.convert(request);
-            detailService.updateExpenseDetail(detail);
+            detailService.updateExpenseDetail(detail.setId(detailId));
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
-        return "redirect:/template/card/" + request.getTemplateId();
+        return "redirect:/template/card/" + request.getDetail().getTemplateId();
     }
 
     @PostMapping("/detail/delete/{detailId}")
-    public String deleteExpenseDetail(
-            @RequestParam("templateId") UUID templateId,
+    public String deleteDetailV1(
             @PathVariable("detailId") UUID detailId) {
         detailService.deleteExpenseDetail(detailId);
-        return "redirect:/template/card/" + templateId;
+        return "redirect:/detail/list";
     }
 
     @PostMapping("/detail/payment/approve/{detailId}")
-    public String approveDetailPaymentV1(
+    public String detailPaymentApproveV1(
             @PathVariable("detailId") UUID detailId,
             @RequestParam("depositId") UUID depositId,
             @RequestParam("image") MultipartFile file) {
-        ExpenseDetailDTOv1 ret;
+        ExpenseDetailSaveRsDTOv1 rs = new ExpenseDetailSaveRsDTOv1();
         try {
-            ret = expenseDetailDTOMapper.convert(detailService.approvePaymentDetail(detailId, depositId, file));
+            ExpenseDetailEntity detail = detailService.approvePaymentDetail(detailId, depositId, file);
+            rs
+                    .setDetail(expenseDetailDTOMapperV2.convert(detail));
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
-        if (ret.getTemplateId() == null)
-            return "redirect:/detail/list";
-        else
-            return "redirect:/template/card/" + ret.getTemplateId();
+//        if (rs.getTemplateId() == null)
+        return "redirect:/detail/list";
+//        else
+//            return "redirect:/template/card/" + detail.getTemplateId();
     }
 
     @PostMapping("/detail/payment/cancel/{detailId}")

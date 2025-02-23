@@ -5,6 +5,7 @@ import lombok.Data;
 import lombok.experimental.Accessors;
 import org.aturkov.expense.dao.template.TemplateEntity;
 import org.aturkov.expense.domain.CurrencyType;
+import org.aturkov.expense.domain.OperationType;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.sql.Timestamp;
@@ -25,7 +26,7 @@ public class HistoryTransactionEntity {
 
     @Column(name = "operation_type")
     @Enumerated(EnumType.STRING)
-    private TemplateEntity.OperationType operationType;
+    private OperationType operationType;
 
     @Column(name = "expense_detail_id")
     private UUID expenseDetailId;

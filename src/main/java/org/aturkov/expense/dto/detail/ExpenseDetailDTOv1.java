@@ -1,8 +1,11 @@
 package org.aturkov.expense.dto.detail;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 import lombok.experimental.Accessors;
+import org.aturkov.expense.dao.template.TemplateEntity;
 import org.aturkov.expense.domain.CurrencyType;
+import org.aturkov.expense.domain.OperationType;
 import org.aturkov.expense.domain.ValidityPeriod;
 import org.aturkov.expense.dto.ValidityPeriodDTOv1;
 import org.aturkov.expense.dto.DTOConfig;
@@ -15,7 +18,10 @@ import java.util.UUID;
 @Data
 @Accessors(chain = true)
 public class ExpenseDetailDTOv1 {
+    @JsonIgnore
     public UUID id;
+    public OperationType operationType;
+    public UUID itemId;
     public UUID templateId;
     public UUID dependDetailId;
     public Integer order;

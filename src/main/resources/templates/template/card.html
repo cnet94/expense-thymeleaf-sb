@@ -75,8 +75,7 @@
             </div>
         </div>
     </div>
-    <form th:action="@{/detail/add}" method="get">
-        <input type="hidden" name="templateId" th:value="${template.id}" />
+    <form th:action="@{'/detail/add/template/' + ${template.id} + '/form'}" method="get">
         <input type="hidden" name="name" th:value="${template.name}" />
         <button type="submit" class="btn btn-success btn-sm">Добавить</button>
     </form>

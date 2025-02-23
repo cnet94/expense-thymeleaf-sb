@@ -22,6 +22,8 @@ public class ExpenseDetailDTOReverseMapper extends SimpleDTOMapper<ExpenseDetail
     public void map(ExpenseDetailDTOv1 src, ExpenseDetailEntity dst, MapperContext mapperContext) throws Exception {
         dst
                 .setId(src.getId())
+                .setOperationType(src.getOperationType())
+                .setItemId(src.getItemId())
                 .setTemplateId(src.getTemplateId())
                 .setDependDetailId(src.getDependDetailId())
                 .setName(src.getName())

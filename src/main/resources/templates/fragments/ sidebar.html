@@ -1,0 +1,85 @@
+<div th:fragment="sidebar" class="sidebar" id="sidebar">
+    <button class="btn btn-primary" onclick="toggleSidebar()">☰</button>
+    <ul class="nav flex-column">
+        <li class="nav-item">
+            <a class="nav-link active" href="/template/list">
+                <i class="fa-solid fa-list"></i>
+                <span class="link-text">Список шаблонов</span>
+            </a>
+            <ul class="nav flex-column ms-3">
+                <li class="nav-item">
+                    <a class="nav-link" href="/template/create-form">
+                        <i class="fa-solid fa-plus"></i>
+                        <span class="link-text">Создать шаблон</span>
+                    </a>
+                </li>
+<!--                <li class="nav-item">-->
+<!--                    <a class="nav-link" href="/template/manage">-->
+<!--                        <i class="fa-solid fa-cog"></i>-->
+<!--                        <span class="link-text">Управление шаблонами</span>-->
+<!--                    </a>-->
+<!--                </li>-->
+            </ul>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="/detail/list">
+                <i class="fa-regular fa-rectangle-list"></i>
+                <span class="link-text">Список деталей</span>
+            </a>
+            <ul class="nav flex-column ms-3">
+                <li class="nav-item">
+                    <a class="nav-link" href="/detail/create-form">
+                        <i class="fa-solid fa-plus"></i>
+                        <span class="link-text">Создать деталь</span>
+                    </a>
+                </li>
+<!--                <li class="nav-item">-->
+<!--                    <a class="nav-link" href="/detail/manage">-->
+<!--                        <i class="fa-solid fa-cog"></i>-->
+<!--                        <span class="link-text">Управление деталями</span>-->
+<!--                    </a>-->
+<!--                </li>-->
+            </ul>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="/item/list">
+                <i class="fa-solid fa-tag"></i>
+                <span class="link-text">Список статей</span>
+            </a>
+            <ul class="nav flex-column ms-3">
+                <li class="nav-item">
+                    <a class="nav-link" href="/item/create-form">
+                        <i class="fa-solid fa-plus"></i>
+                        <span class="link-text">Создать статью</span>
+                    </a>
+                </li>
+<!--                <li class="nav-item">-->
+<!--                    <a class="nav-link" href="/item/manage">-->
+<!--                        <i class="fa-solid fa-cog"></i>-->
+<!--                        <span class="link-text">Управление статьями</span>-->
+<!--                    </a>-->
+<!--                </li>-->
+            </ul>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="/deposit/list">
+                <i class="fa-regular fa-handshake"></i>
+                <span class="link-text">Список депозитов</span>
+            </a>
+            <ul class="nav flex-column ms-3">
+<!--                <li class="nav-item">-->
+<!--                    <a class="nav-link" href="/item/list">-->
+<!--                        <i class="fa-solid fa-list"></i>-->
+<!--                        <span class="link-text">Список статей</span>-->
+<!--                    </a>-->
+<!--                </li>-->
+<!--                <li class="nav-item">-->
+<!--                    <a class="nav-link" href="/item/manage">-->
+<!--                        <i class="fa-solid fa-cog"></i>-->
+<!--                        <span class="link-text">Управление статьями</span>-->
+<!--                    </a>-->
+<!--                </li>-->
+            </ul>
+        </li>
+    </ul>
+</div>

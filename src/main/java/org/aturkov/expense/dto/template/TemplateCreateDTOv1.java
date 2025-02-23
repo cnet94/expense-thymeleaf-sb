@@ -5,8 +5,7 @@ import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
 
 @Data
-@EqualsAndHashCode(callSuper = true)
+@EqualsAndHashCode(callSuper = false)
 @Accessors(chain = true)
-public class TemplateCreateDTOv1 extends TemplateDTOv1 {
-    boolean paymentInCurrentMonth = false;
+public class TemplateCreateDTOv1 extends TemplateSaveDTOv1 {
 }

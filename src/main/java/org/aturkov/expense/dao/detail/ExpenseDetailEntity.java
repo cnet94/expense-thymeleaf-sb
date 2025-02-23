@@ -4,8 +4,10 @@ import jakarta.persistence.*;
 import lombok.Data;
 import lombok.experimental.Accessors;
 import lombok.experimental.FieldNameConstants;
+import org.aturkov.expense.dao.item.ItemEntity;
 import org.aturkov.expense.dao.template.TemplateEntity;
 import org.aturkov.expense.domain.CurrencyType;
+import org.aturkov.expense.domain.OperationType;
 import org.aturkov.expense.domain.ValidityPeriod;
 
 import java.sql.Timestamp;
@@ -20,6 +22,13 @@ public class ExpenseDetailEntity {
     @Id
     @GeneratedValue(generator = "uuid")
     private UUID id;
+
+    @Column(name = "item_id")
+    private UUID itemId;
+
+    @Column(name = "operation_type")
+    @Enumerated(EnumType.STRING)
+    private OperationType operationType;
 
     @Column(name = "template_id")
     private UUID templateId;
@@ -63,10 +72,13 @@ public class ExpenseDetailEntity {
     @JoinColumn(name = "template_id", updatable = false, insertable = false)
     private TemplateEntity template;
 
-//    @OneToOne
-//    @
-//    private HistoryTransactionEntity transaction;
+    @ManyToOne
+    @JoinColumn(name = "item_id", updatable = false, insertable = false)
+    private ItemEntity item;
 
     @Transient
     private ValidityPeriod validityPeriod;
+
+    @Transient
+    private UUID depositId;
 }

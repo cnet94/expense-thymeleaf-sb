@@ -4,6 +4,7 @@ import org.aturkov.expense.dao.detail.ExpenseDetailEntity;
 import org.aturkov.expense.dao.historytransaction.HistoryTransactionEntity;
 import org.aturkov.expense.dao.historytransaction.HistoryTransactionRepository;
 import org.aturkov.expense.dao.template.TemplateEntity;
+import org.aturkov.expense.domain.OperationType;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -21,9 +22,9 @@ public class HistoryService {
                 .setAmount(detail.getAmount())
                 .setStatus(status)
                 .setCurrency(detail.getCurrency());
-        if (detail.getTemplate().getOperationType().equals(TemplateEntity.OperationType.INCOME))
+        if (detail.getTemplate().getOperationType().equals(OperationType.INCOME))
             transaction.setDstDepositId(detail.getTemplate().getDeposit().getId());
-        else if (detail.getTemplate().getOperationType().equals(TemplateEntity.OperationType.EXPENSE))
+        else if (detail.getTemplate().getOperationType().equals(OperationType.EXPENSE))
             transaction.setSrcDepositId(detail.getTemplate().getDeposit().getId());
 //        else
 //            //todo transfer type

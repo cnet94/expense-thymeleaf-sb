@@ -6,17 +6,12 @@ import lombok.experimental.Accessors;
 import lombok.experimental.FieldNameConstants;
 import org.aturkov.expense.dao.deposit.DepositEntity;
 import org.aturkov.expense.dao.detail.ExpenseDetailEntity;
-import org.aturkov.expense.domain.Balance;
-import org.aturkov.expense.domain.CurrencyType;
-import org.aturkov.expense.domain.TemplatePeriod;
-import org.aturkov.expense.domain.ValidityPeriod;
+import org.aturkov.expense.domain.*;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.sql.Timestamp;
-import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 @Entity
 @Data
@@ -48,6 +43,9 @@ public class TemplateEntity {
 
     @Column(name = "percent")
     private Double percent;
+
+    @Column(name = "item_id")
+    private UUID itemId;
 
     @Column(name = "payment_period_type")
     @Enumerated(EnumType.STRING)
@@ -115,39 +113,4 @@ public class TemplateEntity {
 
     @Transient
     private boolean paymentInCurrentMonth;
-
-    @Getter
-    public enum OperationType {
-        INCOME("Доход"),
-        EXPENSE("Расход");
-//        TRANSFER("Трансфер");
-
-        private final String alias;
-
-        OperationType(String alias) {
-            this.alias = alias;
-        }
-    }
-
-    @Getter
-    public enum Type {
-        BASIC("Простой", 1), // не автоматизированный, создаешь когда захочешь
-        RECURRING ("Регулярный", 2), // полуавтоматизированный, следующая операция создается на основе шаблона
-        FIXED("Фиксированный", 3); // автоматизированный, оперции созаются все и сразу
-
-        private final String alias;
-        private final int order;
-
-        Type(String alias, int order) {
-            this.alias = alias;
-            this.order = order;
-        }
-
-        public static List<Type> getTypeList() {
-            List<Type> excludeTypes = List.of(Type.BASIC);
-            return Arrays.stream(Type.values())
-                    .filter(t -> !excludeTypes.contains(t))
-                    .collect(Collectors.toList());
-        }
-    }
 }

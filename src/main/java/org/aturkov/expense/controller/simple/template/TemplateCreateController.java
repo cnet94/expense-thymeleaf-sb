@@ -2,11 +2,14 @@ package org.aturkov.expense.controller.simple.template;
 
 import lombok.RequiredArgsConstructor;
 import org.aturkov.expense.dao.template.TemplateEntity;
-import org.aturkov.expense.dto.template.TemplateCreateDTOv1;
+import org.aturkov.expense.dto.template.TemplateCreateRqDTOv1;
 import org.aturkov.expense.mapper.deposit.DepositDTOMapper;
-import org.aturkov.expense.mapper.template.TemplateCreateRqDTOReverseMapper;
+import org.aturkov.expense.mapper.item.ItemDTOMapper;
+import org.aturkov.expense.mapper.template.TemplateCreateDTOReverseMapper;
+import org.aturkov.expense.mapper.template.TemplateSaveDTOReverseMapper;
 import org.aturkov.expense.mapper.template.TemplateDTOMapperV2;
 import org.aturkov.expense.service.deposit.DepositService;
+import org.aturkov.expense.service.item.ItemService;
 import org.aturkov.expense.service.template.TemplateService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -22,33 +25,37 @@ public class TemplateCreateController {
     private final TemplateService templateService;
     private final TemplateDTOMapperV2 templateDTOMapperV2;
     private final DepositDTOMapper depositDTOMapper;
-    private final TemplateCreateRqDTOReverseMapper templateCreateRqDTOReverseMapper;
+    private final TemplateCreateDTOReverseMapper templateCreateDTOReverseMapper;
     private final DepositService depositService;
+    private final ItemService itemService;
+    private final ItemDTOMapper itemDTOMapper;
 
-    @GetMapping("/template/add/form")
-    public String showTemplateForm(Model model) {
+    @GetMapping("/template/create-form")
+    public String showTemplateCreateForm(
+            Model model) {
         try {
-            model.addAttribute("template", new TemplateCreateDTOv1());
+            model.addAttribute("template", new TemplateCreateRqDTOv1());
             model.addAttribute("templates", templateDTOMapperV2.convertCollection(templateService.getIncomeTemplate()));
             model.addAttribute("deposits", depositDTOMapper.convertCollection(depositService.findDeposits()));
-//            model.addAttribute("typeOptions", TemplateEntity.Type.getTypeList());
+            model.addAttribute("items", itemDTOMapper.convertCollection(itemService.findItems()));
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
-        return "/template/add/form";
+        return "/template/create-form";
     }
 
     @PostMapping("/template/save")
     public String createTemplate(
-            @ModelAttribute("template") TemplateCreateDTOv1 request,
+            @ModelAttribute("template") TemplateCreateRqDTOv1 request,
             RedirectAttributes redirectAttributes) {
-        TemplateEntity templateEntity;
+        TemplateEntity entity;
         try {
-            templateEntity = templateService.createTemplate(templateCreateRqDTOReverseMapper.convert(request));
+            entity = templateCreateDTOReverseMapper.convert(request.getTemplate());
+            entity = templateService.createTemplate(entity);
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("errorMessage", "Error retrieving template: " + e.getMessage());
-            return "redirect:/template/add/form";
+            return "redirect:/template/create-form";
         }
-        return "redirect:/template/card/" + templateEntity.getId();
+        return "redirect:/template/card/" + entity.getId();
     }
 }

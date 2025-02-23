@@ -1,5 +1,6 @@
 package org.aturkov.expense.dao.template;
 
+import org.aturkov.expense.domain.OperationType;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
 
@@ -23,5 +24,5 @@ public interface TemplateRepository extends CrudRepository<TemplateEntity, UUID>
 
     boolean existsByName(String name);
 
-    List<TemplateEntity> findByOperationType(TemplateEntity.OperationType operationType);
+    List<TemplateEntity> findByOperationType(OperationType operationType);
 }

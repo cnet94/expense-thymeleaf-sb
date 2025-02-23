@@ -6,7 +6,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.Accessors;
 import lombok.extern.slf4j.Slf4j;
+import org.aturkov.expense.domain.OperationType;
 import org.aturkov.expense.domain.TemplatePeriod;
+import org.aturkov.expense.domain.Type;
 import org.aturkov.expense.exception.ServiceException;
 import org.aturkov.expense.dao.historytransaction.HistoryTransactionEntity;
 import org.aturkov.expense.dao.template.TemplateEntity;
@@ -56,17 +58,19 @@ public class DetailService extends EntitySecureFindServiceImpl<ExpenseDetailEnti
     }
 
     public void createDetail(TemplateEntity template) throws ServiceException {
-        if (template.getOperationType().equals(TemplateEntity.OperationType.INCOME))
+        if (template.getOperationType().equals(OperationType.INCOME))
             createIncomeDetail(template);
         else
             createExpenseDetail(template);
     }
 
     public void createExpenseDetail(ExpenseDetailEntity expenseDetail) throws ServiceException {
-        TemplateEntity dbTemplate = templateService.safeFindTemplate(expenseDetail.getTemplateId(), FindMode.ifNullThrowsError);
-        expenseDetail
-                .setOrder(nextOrderForDetailExpense(dbTemplate))
-                .setPeriod(dbTemplate.getPeriod());
+        if (expenseDetail.getTemplateId() != null) {
+            TemplateEntity dbTemplate = templateService.safeFindTemplate(expenseDetail.getTemplateId(), FindMode.ifNullThrowsError);
+            expenseDetail
+                    .setOrder(nextOrderForDetailExpense(dbTemplate))
+                    .setPeriod(dbTemplate.getPeriod());
+        }
         expenseDetailRepository.save(expenseDetail);
     }
 
@@ -74,7 +78,7 @@ public class DetailService extends EntitySecureFindServiceImpl<ExpenseDetailEnti
         ExpenseDetailEntity newDetail = fillingGeneralDetail(template);
         fillingAmountAndCurrency(template, newDetail);
         switch (template.getType()) {
-            case BASIC -> fillingExpenseWithTypeOneTime(template, newDetail);
+//            case BASIC -> fillingExpenseWithTypeOneTime(template, newDetail);
             case RECURRING -> fillingExpenseWithTypeRecurring(template, newDetail);
             case FIXED -> fillingExpenseWithTypeCredit(template, newDetail);
         }
@@ -85,6 +89,7 @@ public class DetailService extends EntitySecureFindServiceImpl<ExpenseDetailEnti
 //        dateService.checkIncomeLastMonthAlreadyFinished(template);
         ExpenseDetailEntity incomeDetail = fillingGeneralIncomeDetail(template);
         incomeDetail
+                .setOperationType(template.getOperationType())
                 .setAmount(template.getAmount())
                 .setPlanPaymentDate(Timestamp.valueOf(dateService.nextPaymentDate(template).atStartOfDay()))
                 .setOrder(nextOrderForDetailExpense(template));
@@ -126,16 +131,17 @@ public class DetailService extends EntitySecureFindServiceImpl<ExpenseDetailEnti
     @Transactional
     public ExpenseDetailEntity approvePaymentDetail(UUID detailId, UUID depositId, MultipartFile file) throws IOException, ServiceException {
         ExpenseDetailEntity detail = findExpenseDetail(detailId);
+        detail.setDepositId(depositId);
 
 //        boolean checkActualDate = dateService.checkActualPaymentPeriod(foundExpense);
 //        if (!checkActualDate)
 //            throw new ServiceException("Data is not actual");
 
         updatingDetailWhenApprovePayment(detail);
-        checkCreatingNextDetail(detail.getTemplate());
+        checkCreatingNextDetail(detail);
 
-        depositService.changeDepositAmount(detail, true);
-        historyService.createHistoryTransaction(detail, HistoryTransactionEntity.OperationStatus.APPROVE);
+        depositService.changeDepositAmount(detail,true);
+//        historyService.createHistoryTransaction(detail, HistoryTransactionEntity.OperationStatus.APPROVE);
         attachmentService.saveAttachment(detailId, file);
         expenseDetailRepository.save(detail);
         return detail;
@@ -148,12 +154,15 @@ public class DetailService extends EntitySecureFindServiceImpl<ExpenseDetailEnti
                 .setFactPaymentDate(Timestamp.from(Instant.now()));
     }
 
-    private void checkCreatingNextDetail(TemplateEntity template) throws ServiceException {
-        TemplateEntity.OperationType operationType = template.getOperationType();
-        TemplateEntity.Type type = template.getType();
-        if (!type.equals(TemplateEntity.Type.RECURRING))
+    private void checkCreatingNextDetail(ExpenseDetailEntity detail) throws ServiceException {
+        if (detail.getTemplate() == null)
             return;
-        if (operationType.equals(TemplateEntity.OperationType.EXPENSE))
+        TemplateEntity template = detail.getTemplate();
+        OperationType operationType = template.getOperationType();
+        Type type = template.getType();
+        if (!type.equals(Type.RECURRING))
+            return;
+        if (operationType.equals(OperationType.EXPENSE))
             createExpenseDetail(template);
         else {
             createIncomeDetail(template);
@@ -257,6 +266,7 @@ public class DetailService extends EntitySecureFindServiceImpl<ExpenseDetailEnti
 
     private ExpenseDetailEntity fillingGeneralDetail(TemplateEntity template) {
         return new ExpenseDetailEntity()
+                .setOperationType(template.getOperationType())
                 .setTemplateId(template.getId())
                 .setName(template.getName())
                 .setCurrency(template.getCurrency())

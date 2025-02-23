@@ -15,7 +15,6 @@ import java.util.UUID;
 @Service
 @RequiredArgsConstructor
 public class DepositService extends EntitySecureFindServiceImpl<DepositEntity> {
-
     private final DepositRepository depositRepository;
 
     @Override
@@ -31,20 +30,23 @@ public class DepositService extends EntitySecureFindServiceImpl<DepositEntity> {
         return depositRepository.findAll();
     }
 
-    public void changeDepositAmount(ExpenseDetailEntity detail, final boolean adding) {
+    public void changeDepositAmount(ExpenseDetailEntity detail, final boolean adding) throws ServiceException {
+        DepositEntity deposit;
+        if (detail.getTemplate() == null) {
+            deposit = safeFindEntity(detail.getDepositId(), depositRepository, FindMode.ifNullThrowsError);
+        } else {
+            deposit = detail.getTemplate().getDeposit();
+        }
         //todo сизменить логику, а то как то криво вышло
-        DepositEntity deposit = detail.getTemplate().getDeposit();
         if (adding) {
-            switch (detail.getTemplate().getOperationType()) {
+            switch (detail.getOperationType()) {
                 case INCOME -> deposit.addAmount(detail.getAmount());
                 case EXPENSE -> deposit.subtractAmount(detail.getAmount());
-//            case TRANSFER -> ;
             };
         } else {
-            switch (detail.getTemplate().getOperationType()) {
+            switch (detail.getOperationType()) {
                 case INCOME -> deposit.subtractAmount(detail.getAmount());
                 case EXPENSE -> deposit.addAmount(detail.getAmount());
-//            case TRANSFER -> ;
             };
         }
         depositRepository.save(deposit);

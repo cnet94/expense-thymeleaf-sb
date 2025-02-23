@@ -4,6 +4,7 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.aturkov.expense.domain.CurrencyType;
+import org.aturkov.expense.domain.OperationType;
 import org.aturkov.expense.exception.ServiceException;
 import org.aturkov.expense.dao.detail.ExpenseDetailEntity;
 import org.aturkov.expense.dao.template.TemplateEntity;
@@ -42,8 +43,6 @@ public class TemplateService extends EntitySecureFindServiceImpl<TemplateEntity>
         if (entity.getExpiryDate() != null)
             dateService.checkDateInFuture(entity.getExpiryDate());
         switch (entity.getType()) {
-            case BASIC -> {
-            }
             case RECURRING -> {
                 checkAmountPositive(entity);
                 if (entity.getPaymentDay() == null)
@@ -85,7 +84,7 @@ public class TemplateService extends EntitySecureFindServiceImpl<TemplateEntity>
     }
 
     public List<TemplateEntity> getIncomeTemplate() throws ServiceException {
-        return templateRepository.findByOperationType(TemplateEntity.OperationType.INCOME);
+        return templateRepository.findByOperationType(OperationType.INCOME);
     }
 
     private void sortingDetails(TemplateEntity dbTemplate) {
@@ -139,9 +138,8 @@ public class TemplateService extends EntitySecureFindServiceImpl<TemplateEntity>
         validateEntity(template, EntitySmartService.EntityValidateMode.beforeSave);
         fillingTemplate(template);
         TemplateEntity dbTemplate = templateRepository.save(template);
-        if (dbTemplate.getType().equals(TemplateEntity.Type.BASIC))
-            return dbTemplate;
-        dbTemplate.setPaymentInCurrentMonth(template.isPaymentInCurrentMonth());
+        dbTemplate
+                .setPaymentInCurrentMonth(template.isPaymentInCurrentMonth());
         detailService.createDetail(dbTemplate);
         return dbTemplate;
     }
@@ -150,15 +148,12 @@ public class TemplateService extends EntitySecureFindServiceImpl<TemplateEntity>
         fillingGeneralTemplate(template);
         fillingAmountOrPercent(template);
         switch (template.getType()) {
-            case BASIC -> fillingTemplateOneTime(template);
             case RECURRING -> fillingTemplateRecurring(template);
             case FIXED -> fillingTemplateCredit(template);
         }
     }
 
     private void fillingAmountOrPercent(TemplateEntity template) {
-        if (template.getType().equals(TemplateEntity.Type.BASIC))
-            return;
         if (template.getAmount() != null) {
             template
                     .setAmount(template.getAmount())

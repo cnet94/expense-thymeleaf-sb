@@ -11,10 +11,10 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class ExpenseDetailUpdateDTOReverseMapper extends SimpleDTOMapper<ExpenseDetailUpdateRqDTOv1, ExpenseDetailEntity> {
 
-    private final ExpenseDetailDTOReverseMapper expenseDetailDTOReverseMapper;
+    private final ExpenseDetailSaveDTOReverseMapper expenseDetailSaveDTOReverseMapper;
 
     @Override
     public void map(ExpenseDetailUpdateRqDTOv1 src, ExpenseDetailEntity dst, MapperContext mapperContext) throws Exception {
-        expenseDetailDTOReverseMapper.map(src, dst, mapperContext);
+        expenseDetailSaveDTOReverseMapper.map(src.getDetail(), dst, mapperContext);
     }
 }

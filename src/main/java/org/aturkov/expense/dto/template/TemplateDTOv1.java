@@ -2,18 +2,13 @@ package org.aturkov.expense.dto.template;
 
 import lombok.Data;
 import lombok.experimental.Accessors;
-import org.aturkov.expense.dao.template.TemplateEntity;
-import org.aturkov.expense.domain.CurrencyType;
-import org.aturkov.expense.domain.TemplatePeriod;
-import org.aturkov.expense.domain.ValidityPeriod;
+import org.aturkov.expense.domain.*;
 import org.aturkov.expense.dto.DTOConfig;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.UUID;
-
-import static org.aturkov.expense.domain.ValidityPeriod.Time.NONE;
 
 
 @Data
@@ -23,8 +18,9 @@ public class TemplateDTOv1 {
     public Double amount;
     public Double percent;
     public CurrencyType currency;
-    public TemplateEntity.OperationType operationType;
-    public TemplateEntity.Type type;
+    public UUID itemId;
+    public OperationType operationType;
+    public Type type;
     public ValidityPeriod.Time period;
     public TemplatePeriod templatePeriod;
     public Integer paymentCount;

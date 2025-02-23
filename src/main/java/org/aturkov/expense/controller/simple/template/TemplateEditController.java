@@ -32,6 +32,6 @@ public class TemplateEditController {
             return "redirect:/template/list";
         }
         model.addAttribute("template", template);
-        return "/template/edit/form";
+        return "update-form";
     }
 }
