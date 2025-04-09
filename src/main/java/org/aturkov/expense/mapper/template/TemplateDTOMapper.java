@@ -2,7 +2,7 @@ package org.aturkov.expense.mapper.template;
 
 import lombok.RequiredArgsConstructor;
 import org.aturkov.expense.dao.template.TemplateEntity;
-import org.aturkov.expense.domain.ValidityPeriod;
+import org.aturkov.expense.domain.PaymentPeriod;
 import org.aturkov.expense.dto.template.TemplateRsDTOv1;
 import org.aturkov.expense.mapper.MapperContext;
 import org.aturkov.expense.mapper.SimpleDTOMapper;
@@ -25,22 +25,33 @@ public class TemplateDTOMapper extends SimpleDTOMapper<TemplateEntity, TemplateR
 
     @Override
     public void map(TemplateEntity src, TemplateRsDTOv1 dst, MapperContext mapperContext) throws Exception {
-        templateService.fillingGeneralBalance(src);
         dst
                 .setId(src.getId())
                 .setName(src.getName())
-                .setAmount(src.getAmount() != null ? src.getDetailAmount() : null)
                 .setCurrency(src.getCurrency())
-                .setOperationType(src.getOperationType().getAlias())
+                .setOperationType(src.getOperationType())
                 .setType(src.getType().getAlias())
-                .setPeriod(ValidityPeriod.Time.getCurrentName(src.getPeriod()))
+                .setDepositId(src.getDepositId())
+                .setPeriod(PaymentPeriod.getCurrentName(src.getPeriod()))
                 .setPaymentCount(src.getPaymentCount())
                 .setPaymentDay(src.getPaymentDay() != null ? src.getPaymentDay() : null)
-                .setBalance(balanceDTOMapper.convert(src.getGeneralBalance()))
+                .setWeekend(src.getWeekend())
                 .setPaymentDate(convertToLocaleDate(src.getPaymentDate()))
                 .setExpiryDate(convertToLocaleDateTime(src.getExpiryDate()))
                 .setCreateAt(convertToLocaleDateTime(src.getCreatedAt()));
+        fillAmount(src, dst);
         if (src.getDetails() != null)
             dst.setDetails(expenseDetailDTOMapper.convertCollection(src.getDetails()));
+    }
+
+    private void fillAmount(TemplateEntity src, TemplateRsDTOv1 dst) throws Exception {
+        dst.setAmount(src.getAmount());
+        switch (src.getType()) {
+            case RECURRING -> {}
+            case FIXED -> {
+                templateService.fillingGeneralBalance(src);
+                dst.setBalance(balanceDTOMapper.convert(src.getGeneralBalance()));
+            }
+        }
     }
 }

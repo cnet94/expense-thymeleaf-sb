@@ -6,21 +6,22 @@ import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.Accessors;
 import lombok.extern.slf4j.Slf4j;
-import org.aturkov.expense.domain.OperationType;
-import org.aturkov.expense.domain.TemplatePeriod;
-import org.aturkov.expense.domain.Type;
+import org.aturkov.cambium.pagination.PaginationResult;
+import org.aturkov.cambium.pagination.SimplePagination;
+import org.aturkov.cambium.pagination.util.PaginationUtils;
+import org.aturkov.expense.domain.*;
 import org.aturkov.expense.exception.ServiceException;
-import org.aturkov.expense.dao.historytransaction.HistoryTransactionEntity;
 import org.aturkov.expense.dao.template.TemplateEntity;
 import org.aturkov.expense.dao.detail.ExpenseDetailEntity;
 import org.aturkov.expense.dao.detail.ExpenseDetailRepository;
-import org.aturkov.expense.domain.ValidityPeriod;
 import org.aturkov.expense.service.*;
 import org.aturkov.expense.service.attachment.AttachmentService;
 import org.aturkov.expense.service.history.HistoryService;
 import org.aturkov.expense.service.other.DateService;
 import org.aturkov.expense.service.deposit.DepositService;
 import org.aturkov.expense.service.template.TemplateService;
+import org.springframework.data.domain.Page;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
@@ -31,6 +32,7 @@ import java.sql.Timestamp;
 import java.time.*;
 import java.util.*;
 
+import static org.aturkov.expense.dao.specification.CommonSpecification.*;
 import static org.aturkov.expense.service.other.DateService.*;
 
 @Slf4j
@@ -53,6 +55,24 @@ public class DetailService extends EntitySecureFindServiceImpl<ExpenseDetailEnti
         return safeFindEntity(id, expenseDetailRepository, FindMode.ifNullThrowsError);
     }
 
+    public PaginationResult<ExpenseDetailEntity> findDetails(ExpenseDetailSearch search, SimplePagination pagination) throws ServiceException {
+        Specification<ExpenseDetailEntity> spec = createDetailSearchSpecification(search);
+        Page<ExpenseDetailEntity> ret = expenseDetailRepository.findAll(spec, PaginationUtils.pageableOffset(pagination));
+        return PaginationUtils.convertInPaginationResult(ret, pagination);
+    }
+
+    private Specification<ExpenseDetailEntity> createDetailSearchSpecification(ExpenseDetailSearch search) {
+        return Specification.allOf(
+                checkUuidIn(search.getIdList(), false, false, ExpenseDetailEntity.Fields.id),
+                checkUuidIn(search.getIdExcludeList(), true, false, ExpenseDetailEntity.Fields.id),
+                checkUuidIn(search.getTemplateIdList(), false, false, ExpenseDetailEntity.Fields.templateId),
+                checkUuidIn(search.getTemplateIdExcludeList(), true, false, ExpenseDetailEntity.Fields.templateId),
+                checkFieldLikeIn(search.getNameLikeList(), false, false, ExpenseDetailEntity.Fields.name),
+                checkFieldLikeIn(search.getNameNotLikeList(), true, true, ExpenseDetailEntity.Fields.name),
+                checkFieldLocalDateTimeBetween(search.getPlanData(), ExpenseDetailEntity.Fields.planPaymentDate)
+        );
+    }
+
     public void saveExpenseDetail(List<ExpenseDetailEntity> expenseDetailList) {
         expenseDetailRepository.saveAll(expenseDetailList);
     }
@@ -68,7 +88,12 @@ public class DetailService extends EntitySecureFindServiceImpl<ExpenseDetailEnti
         if (expenseDetail.getTemplateId() != null) {
             TemplateEntity dbTemplate = templateService.safeFindTemplate(expenseDetail.getTemplateId(), FindMode.ifNullThrowsError);
             expenseDetail
+                    .setName(dbTemplate.getName())
+                    .setItemId(dbTemplate.getItemId())
+                    //todo сделать перерасчет порядкового номера, так как сейчас, если первый платеж в 28 числа, а новый добавляемый 26,
+                    // то он встанет вторым, хотя 26 идет раньше 28. Сделать возможность вставки данных в промежутаках
                     .setOrder(nextOrderForDetailExpense(dbTemplate))
+                    .setOperationType(dbTemplate.getOperationType())
                     .setPeriod(dbTemplate.getPeriod());
         }
         expenseDetailRepository.save(expenseDetail);
@@ -92,12 +117,14 @@ public class DetailService extends EntitySecureFindServiceImpl<ExpenseDetailEnti
                 .setOperationType(template.getOperationType())
                 .setAmount(template.getAmount())
                 .setPlanPaymentDate(Timestamp.valueOf(dateService.nextPaymentDate(template).atStartOfDay()))
-                .setOrder(nextOrderForDetailExpense(template));
+                .setOrder(nextOrderForDetailExpense(template))
+                .setItemId(template.getItemId());
         expenseDetailRepository.save(incomeDetail);
     }
 
     public ExpenseDetailEntity updateExpenseDetail(ExpenseDetailEntity expenseDetailEntity) throws ServiceException {
-        TemplateEntity dbExpense = templateService.safeFindTemplate(expenseDetailEntity.getTemplateId(), FindMode.ifNullThrowsError);
+        //todo текущая логика учитывает только если есть template написать если нет
+        TemplateEntity dbExpense = templateService.safeFindTemplate(expenseDetailEntity.getTemplateId(), FindMode.ifNullNone);
         ExpenseDetailEntity dbExpenseDetail = dbExpense.getDetails().stream()
                 .filter(e -> e.getId().equals(expenseDetailEntity.getId()))
                 .findFirst().get();
@@ -114,7 +141,9 @@ public class DetailService extends EntitySecureFindServiceImpl<ExpenseDetailEnti
     }
 
     @Transactional
-    public void deleteExpenseDetail(UUID detailId) {
+    public void deleteExpenseDetail(UUID detailId, Boolean paid) throws ServiceException {
+        if (paid)
+            throw new ServiceException("Can't delete expense detail because it is paid");
         deleteExpenseDetail(Collections.singletonList(detailId));
     }
 
@@ -185,7 +214,7 @@ public class DetailService extends EntitySecureFindServiceImpl<ExpenseDetailEnti
     private void fillingExpenseWithTypeRecurring(TemplateEntity template, ExpenseDetailEntity detail) throws ServiceException {
         detail
                 .setOrder(nextOrderForDetailExpense(template))
-                .setPlanPaymentDate(convertToTimestamp(dateService.nextPaymentDate(template)));
+                .setPlanPaymentDate(convertOrNull(dateService.nextPaymentDate(template)));
         expenseDetailRepository.save(detail);
     }
 
@@ -266,6 +295,7 @@ public class DetailService extends EntitySecureFindServiceImpl<ExpenseDetailEnti
 
     private ExpenseDetailEntity fillingGeneralDetail(TemplateEntity template) {
         return new ExpenseDetailEntity()
+                .setItemId(template.getItemId())
                 .setOperationType(template.getOperationType())
                 .setTemplateId(template.getId())
                 .setName(template.getName())
@@ -280,7 +310,7 @@ public class DetailService extends EntitySecureFindServiceImpl<ExpenseDetailEnti
         AmountPerMonth amountPerMonth = amountPerMonth(template);
         for (int i = 1; i <= template.getPaymentCount(); i++) {
             if (i != 1) {
-                nextPaymentDate = convertToTimestamp(dateService.nextPaymentDateForCredit(template, nextPaymentDate));
+                nextPaymentDate = convertOrNull(dateService.nextPaymentDateForCredit(template, nextPaymentDate));
                 if (i == 2)
                     template.setPaymentInCurrentMonth(false);
             }
@@ -312,11 +342,12 @@ public class DetailService extends EntitySecureFindServiceImpl<ExpenseDetailEnti
         if (dbDetail == null) {
             throw new ServiceException("Expense detail not found");
         }
+        depositService.changeDepositAmount(dbDetail, false);
         dbDetail
                 .setPaid(false)
-                .setFactPaymentDate(null);
-        depositService.changeDepositAmount(dbDetail, false);
-        historyService.createHistoryTransaction(dbDetail, HistoryTransactionEntity.OperationStatus.CANCEL);
+                .setFactPaymentDate(null)
+                .setDepositId(null);
+//        historyService.createHistoryTransaction(dbDetail, HistoryTransactionEntity.OperationStatus.CANCEL);
         expenseDetailRepository.save(dbDetail);
     }
 
@@ -325,7 +356,7 @@ public class DetailService extends EntitySecureFindServiceImpl<ExpenseDetailEnti
         int currentMonth = currentDate.getMonthValue();
         int currentYear = currentDate.getYear();
         //todo заменить поиском
-        List<ExpenseDetailEntity> byPaymentDateInCurrentMonth = expenseDetailRepository.findByPaymentDateAndNotPaid(currentMonth, currentYear);
+        List<ExpenseDetailEntity> byPaymentDateInCurrentMonth = expenseDetailRepository.findByPaymentDate(currentMonth, currentYear);
         byPaymentDateInCurrentMonth.sort(Comparator.comparing(ExpenseDetailEntity::getPlanPaymentDate));
         return byPaymentDateInCurrentMonth;
     }

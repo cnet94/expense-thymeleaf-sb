@@ -2,6 +2,8 @@ package org.aturkov.expense.domain;
 
 import lombok.Getter;
 
+import java.util.Arrays;
+
 @Getter
 public enum CurrencyType {
     USD("доллар"),

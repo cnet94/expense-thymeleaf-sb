@@ -6,11 +6,12 @@ import org.aturkov.expense.dto.detail.ExpenseDetailDTOv1;
 import org.aturkov.expense.mapper.MapperContext;
 import org.aturkov.expense.mapper.other.PeriodDTOReverseMapper;
 import org.aturkov.expense.mapper.SimpleDTOMapper;
+import org.aturkov.expense.service.other.DateService;
 import org.springframework.stereotype.Component;
 
 import java.sql.Timestamp;
 
-import static org.aturkov.expense.service.other.DateService.convertToTimestamp;
+import static org.aturkov.expense.service.other.DateService.convertOrNull;
 
 @Component
 @RequiredArgsConstructor
@@ -30,7 +31,7 @@ public class ExpenseDetailDTOReverseMapper extends SimpleDTOMapper<ExpenseDetail
                 .setAmount(src.getAmount())
                 .setCurrency(src.getCurrency())
                 .setPeriod(src.getPeriod())
-                .setPlanPaymentDate(convertToTimestamp(src.getPlanPaymentDate()))
+                .setPlanPaymentDate(DateService.convertOrNull(src.getPlanPaymentDate()))
                 .setOrder(src.getOrder())
                 .setValidityPeriod(periodDTOReverseMapper.convert(src.getPaymentPeriod()))
                 .setPaid(src.isPaid());

@@ -19,9 +19,9 @@ public class TemplateEditController {
     private final TemplateService templateService;
     private final TemplateDTOMapper templateDTOMapper;
 
-    @GetMapping("/template/edit/{Id}")
+    @GetMapping("/template/{id}/edit")
     public String showUpdateTemplateForm(
-            @PathVariable("Id") UUID id,
+            @PathVariable("id") UUID id,
             Model model,
             RedirectAttributes redirectAttributes) {
         TemplateRsDTOv1 template;
@@ -32,6 +32,6 @@ public class TemplateEditController {
             return "redirect:/template/list";
         }
         model.addAttribute("template", template);
-        return "update-form";
+        return "template/update-form";
     }
 }

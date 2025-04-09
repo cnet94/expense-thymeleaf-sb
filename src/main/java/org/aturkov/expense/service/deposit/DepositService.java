@@ -31,12 +31,7 @@ public class DepositService extends EntitySecureFindServiceImpl<DepositEntity> {
     }
 
     public void changeDepositAmount(ExpenseDetailEntity detail, final boolean adding) throws ServiceException {
-        DepositEntity deposit;
-        if (detail.getTemplate() == null) {
-            deposit = safeFindEntity(detail.getDepositId(), depositRepository, FindMode.ifNullThrowsError);
-        } else {
-            deposit = detail.getTemplate().getDeposit();
-        }
+        DepositEntity deposit = safeFindEntity(detail.getDepositId(), depositRepository, FindMode.ifNullThrowsError);
         //todo сизменить логику, а то как то криво вышло
         if (adding) {
             switch (detail.getOperationType()) {

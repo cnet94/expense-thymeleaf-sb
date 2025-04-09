@@ -82,9 +82,9 @@
         <div class="form-group payment-group">
             <label for="period">Period:</label>
             <select class="form-control" name="period" id="period" th:field="*{period}">
-                <option th:each="periodOption : ${T(org.aturkov.expense.domain.ValidityPeriod.Time).values()}"
-                        th:value="${periodOption}"
-                        th:text="${periodOption.name}"
+                <option th:each="period : ${T(org.aturkov.expense.domain.PaymentPeriod).values()}"
+                        th:value="${period}"
+                        th:text="${period.name}"
                 ></option>
             </select>
         </div>

@@ -33,8 +33,10 @@ public class TemplateViewController {
         return "/template/card";
     }
 
-    @GetMapping("/template/card/{id}")
-    public String getExpenseDetails(@PathVariable("id") UUID id, Model model) {
+    @GetMapping("/template/{id}/card")
+    public String getExpenseDetails(
+            @PathVariable("id") UUID id,
+            Model model) {
         TemplateRsDTOv1 rs;
         try {
             rs = templateDTOMapper.convert(templateService.getTemplateWithSortDetail(id));

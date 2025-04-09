@@ -5,11 +5,11 @@ import org.aturkov.expense.dao.item.ItemEntity;
 import org.aturkov.expense.dao.item.ItemRepository;
 import org.aturkov.expense.exception.ErrorCodeExpense;
 import org.aturkov.expense.exception.ServiceException;
+import org.aturkov.expense.service.Permissions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
-import java.sql.SQLException;
 import java.util.List;
 import java.util.UUID;
 
@@ -30,12 +30,9 @@ public class ItemService {
     }
 
     public void deleteItem(UUID id) throws Exception {
-        try {
-            itemRepository.deleteById(id);
-        } catch (RuntimeException e) {
-            log.error(e.getMessage());
-            throw new Exception(String.format(ErrorCodeExpense.ITEM_DELETE_FAILED.getMessage(), id), e);
-        }
+        if (Permissions.SYSTEM_ITEM.getId().equals(id))
+            throw new ServiceException("Can't delete system item");
+        itemRepository.deleteById(id);
     }
 
     public void archiveItem(UUID id) throws ServiceException {

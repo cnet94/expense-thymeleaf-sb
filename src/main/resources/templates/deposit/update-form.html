@@ -45,7 +45,7 @@
                     </div>
                     <div class="form-group col">
                         <label for="currencyType">Валюта:</label>
-                        <select class="form-control" name="currencyType" id="currencyType" th:field="*{currencyType}" style="width: 100px;">
+                        <select class="form-control" name="currencyType" id="currencyType" th:field="*{currency}" style="width: 100px;">
                             <option th:each="currencyOption : ${T(org.aturkov.expense.domain.CurrencyType).values()}"
                                     th:value="${currencyOption}"
                                     th:text="${currencyOption.getValue()}">
@@ -57,7 +57,7 @@
             <div class="form-group col">
                 <label for="status">Статус:</label>
                 <select class="form-control" name="status" id="status" th:field="*{status}">
-                    <option th:each="status : ${T(org.aturkov.expense.domain.CurrencyType).values()}"
+                    <option th:each="status : ${T(org.aturkov.expense.dao.item.ItemEntity.Status).values()}"
                             th:value="${status}"
                             th:text="${status.getValue()}">
                     </option>

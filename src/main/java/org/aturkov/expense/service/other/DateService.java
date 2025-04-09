@@ -1,6 +1,7 @@
 package org.aturkov.expense.service.other;
 
 import lombok.RequiredArgsConstructor;
+import org.aturkov.expense.domain.PaymentPeriod;
 import org.aturkov.expense.exception.ServiceException;
 import org.aturkov.expense.dao.template.TemplateEntity;
 import org.aturkov.expense.dao.detail.ExpenseDetailEntity;
@@ -10,7 +11,6 @@ import org.springframework.stereotype.Service;
 import java.sql.Timestamp;
 import java.time.*;
 
-import static org.aturkov.expense.domain.ValidityPeriod.Time.NONE;
 
 @Service
 @RequiredArgsConstructor
@@ -37,9 +37,9 @@ public class DateService {
     }
 
     public boolean checkActualPaymentPeriod(TemplateEntity expense) {
-        if (expense.getPeriod() == NONE)
+        if (expense.getPeriod() == PaymentPeriod.NONE)
             return true;
-        int currentOffset = ValidityPeriod.Time.getCurrentOffset(expense.getPeriod());
+        int currentOffset = PaymentPeriod.getCurrentOffset(expense.getPeriod());
         Timestamp paymentDate = expense.getPaymentDate();
 //        ValidityPeriod validityPeriod = fillingPeriod(paymentDate, currentOffset);
 //        Timestamp from = Timestamp.valueOf(validityPeriod.getDateFrom());
@@ -61,8 +61,8 @@ public class DateService {
             return;
         YearMonth targetMonth = YearMonth.from(detail.getPlanPaymentDate().toLocalDateTime()).plusMonths(detail.getPeriod().getOffset());
         detail
-                .setPeriodDateFrom(convertToTimestamp(targetMonth.atDay(1)))
-                .setPeriodDateTo(convertToTimestamp(targetMonth.atEndOfMonth()));
+                .setPeriodDateFrom(convertOrNull(targetMonth.atDay(1)))
+                .setPeriodDateTo(convertOrNull(targetMonth.atEndOfMonth()));
     }
 
     public ValidityPeriod getPeriod(LocalDate localDate) {;
@@ -170,11 +170,11 @@ public class DateService {
         return Math.round(amount * 100.0) / 100.0;
     }
 
-    public static Timestamp convertToTimestamp(LocalDate localDate) {
+    public static Timestamp convertOrNull(LocalDate localDate) {
         return localDate != null ? Timestamp.valueOf(localDate.atStartOfDay()) : null;
     }
 
-    public static Timestamp convertToTimestamp(LocalDateTime localDateTime) {
+    public static Timestamp convertOrNull(LocalDateTime localDateTime) {
         return localDateTime != null ? Timestamp.valueOf(localDateTime) : null;
     }
 

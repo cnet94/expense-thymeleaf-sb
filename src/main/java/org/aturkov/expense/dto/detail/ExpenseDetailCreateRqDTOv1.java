@@ -9,5 +9,5 @@ import org.aturkov.expense.dto.Request;
 @EqualsAndHashCode(callSuper = false)
 @Accessors(chain = true)
 public class ExpenseDetailCreateRqDTOv1 extends Request {
-    public ExpenseDetailSaveDTOv1 detail;
+    public ExpenseDetailCreateDTOv1 detail;
 }

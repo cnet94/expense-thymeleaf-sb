@@ -4,6 +4,7 @@ import lombok.Data;
 import lombok.experimental.Accessors;
 import org.aturkov.expense.dao.template.TemplateEntity;
 import org.aturkov.expense.domain.CurrencyType;
+import org.aturkov.expense.domain.OperationType;
 import org.aturkov.expense.dto.BalanceDTOv1;
 import org.aturkov.expense.dto.DTOConfig;
 import org.aturkov.expense.dto.detail.ExpenseDetailDTOv1;
@@ -20,13 +21,15 @@ public class TemplateRsDTOv1 {
     public UUID id;
     public Boolean expense;
     public String name;
-    public String operationType;
+    public OperationType operationType;
     public String type;
     public String period;
     public Double amount;
+    public UUID depositId;
     public CurrencyType currency;
     public BalanceDTOv1 balance;
     public BalanceDTOv1 remainderBalance;
+    public Boolean weekend;
     public Integer paymentDay;
     public Integer paymentCount;
     @DateTimeFormat(pattern = DTOConfig.DATE_FORMAT)

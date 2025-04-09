@@ -21,7 +21,7 @@ public class TemplateDTOv1 {
     public UUID itemId;
     public OperationType operationType;
     public Type type;
-    public ValidityPeriod.Time period;
+    public PaymentPeriod period;
     public TemplatePeriod templatePeriod;
     public Integer paymentCount;
     public Integer paymentDay;

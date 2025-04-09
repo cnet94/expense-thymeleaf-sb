@@ -15,7 +15,7 @@ public class DepositSaveDTOReverseMapper extends SimpleDTOMapper<DepositSaveDTOv
         dst
                 .setName(src.getName())
                 .setAmount(src.getAmount())
-                .setCurrencyType(src.getCurrencyType())
+                .setCurrencyType(src.getCurrency())
                 .setStatus(src.getStatus());
     }
 }

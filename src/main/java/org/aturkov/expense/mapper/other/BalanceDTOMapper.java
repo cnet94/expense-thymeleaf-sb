@@ -11,7 +11,6 @@ import org.springframework.stereotype.Component;
 @Component
 @RequiredArgsConstructor
 public class BalanceDTOMapper extends SimpleDTOMapper<Balance, BalanceDTOv1> {
-    final TemplateService templateService;
 
     @Override
     public void map(Balance src, BalanceDTOv1 dst, MapperContext mapperContext) throws Exception {

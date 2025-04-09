@@ -16,7 +16,7 @@ public class DepositSaveDTOMapper extends SimpleDTOMapper<DepositEntity, Deposit
 
                 .setName(src.getName())
                 .setAmount(src.getAmount())
-                .setCurrencyType(src.getCurrencyType())
+                .setCurrency(src.getCurrencyType())
                 .setStatus(src.getStatus());
     }
 }

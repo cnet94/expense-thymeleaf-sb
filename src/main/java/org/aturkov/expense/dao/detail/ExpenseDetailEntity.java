@@ -8,6 +8,7 @@ import org.aturkov.expense.dao.item.ItemEntity;
 import org.aturkov.expense.dao.template.TemplateEntity;
 import org.aturkov.expense.domain.CurrencyType;
 import org.aturkov.expense.domain.OperationType;
+import org.aturkov.expense.domain.PaymentPeriod;
 import org.aturkov.expense.domain.ValidityPeriod;
 
 import java.sql.Timestamp;
@@ -40,7 +41,7 @@ public class ExpenseDetailEntity {
     private String name;
 
     @Column(name = "amount")
-    private double amount;
+    private Double amount;
 
     @Column(name = "currency")
     @Enumerated(EnumType.STRING)
@@ -48,7 +49,7 @@ public class ExpenseDetailEntity {
 
     @Column(name = "payment_period_type")
     @Enumerated(EnumType.STRING)
-    private ValidityPeriod.Time period;
+    private PaymentPeriod period;
 
     @Column(name = "plan_payment_date")
     private Timestamp planPaymentDate;
@@ -68,6 +69,9 @@ public class ExpenseDetailEntity {
     @Column(name = "depend_detail_id")
     private UUID dependDetailId;
 
+    @Column(name = "deposit_id")
+    private UUID depositId;
+
     @ManyToOne
     @JoinColumn(name = "template_id", updatable = false, insertable = false)
     private TemplateEntity template;
@@ -78,7 +82,4 @@ public class ExpenseDetailEntity {
 
     @Transient
     private ValidityPeriod validityPeriod;
-
-    @Transient
-    private UUID depositId;
 }

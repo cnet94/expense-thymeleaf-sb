@@ -4,7 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.aturkov.expense.dao.deposit.DepositEntity;
 import org.aturkov.expense.dto.deposit.*;
 import org.aturkov.expense.exception.ServiceException;
-import org.aturkov.expense.mapper.deposit.DepositCreateRqDTOReverseMapper;
+import org.aturkov.expense.mapper.deposit.DepositCreateDTOReverseMapper;
 import org.aturkov.expense.mapper.deposit.DepositDTOMapper;
 import org.aturkov.expense.mapper.deposit.DepositUpdateRqDTOMapper;
 import org.aturkov.expense.mapper.deposit.DepositUpdateRqDTOReverseMapper;
@@ -25,7 +25,7 @@ import java.util.UUID;
 public class DepositController {
     private final DepositDTOMapper depositDTOMapper;
     private final DepositService depositService;
-    private final DepositCreateRqDTOReverseMapper depositCreateRqDTOReverseMapper;
+    private final DepositCreateDTOReverseMapper depositCreateDTOReverseMapper;
     private final DepositUpdateRqDTOReverseMapper depositUpdateRqDTOReverseMapper;
     private final DepositUpdateRqDTOMapper depositUpdateRqDTOMapper;
 
@@ -44,9 +44,10 @@ public class DepositController {
     @GetMapping("/deposit/create")
     public String showDepositAddForm(
             Model model) {
-        DepositCreateRqDTOv1 deposit = (DepositCreateRqDTOv1) new DepositCreateRqDTOv1()
-                .setAmount(0.0);
-        model.addAttribute("deposit", deposit);
+        DepositCreateRqDTOv1 rq = new DepositCreateRqDTOv1();
+        rq
+                .setDeposit((DepositCreateDTOv1) new DepositCreateDTOv1().setAmount(0.0));
+        model.addAttribute("deposit", rq);
         return "/deposit/create-form";
     }
 
@@ -55,7 +56,7 @@ public class DepositController {
             @ModelAttribute("deposit") DepositCreateRqDTOv1 request) {
         DepositCreateRsDTOv1 rs = new DepositCreateRsDTOv1();
         try {
-            DepositEntity deposit = depositService.createDeposit(depositCreateRqDTOReverseMapper.convert(request));
+            DepositEntity deposit = depositService.createDeposit(depositCreateDTOReverseMapper.convert(request.getDeposit()));
             rs
                     .setDeposit(depositDTOMapper.convert(deposit));
         } catch (Exception e) {

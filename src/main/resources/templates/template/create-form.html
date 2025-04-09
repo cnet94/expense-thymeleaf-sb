@@ -95,17 +95,14 @@
     </style>
 </head>
 <body>
-<div th:replace="~{fragments/ sidebar :: sidebar}"></div>
-<div th:if="${errorMessage}" class="alert alert-warning alert-dismissible fade show" role="alert">
-    <strong>Error</strong> <span th:text="${errorMessage}"></span>
-    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-</div>
+<div th:replace="~{fragments/sidebar :: sidebar}"></div>
+<div th:replace="~{fragments/message :: message}"></div>
 <div class="content" id="content">
     <div class="container mt-5">
         <form th:action="@{/template/save}" th:object="${template}" method="post" class="mt-3">
             <div class="form-group">
                 <label for="operationType">Тип операции:</label>
-                <select class="form-control" name="operationType" id="operationType" th:field="*{operationType}" onchange="toggleFields()" required>
+                <select class="form-control" name="operationType" id="operationType" th:field="*{template.operationType}" onchange="toggleFields()" required>
                     <option th:each="operationType : ${T(org.aturkov.expense.domain.OperationType).values()}"
                             th:value="${operationType}"
                             th:text="${operationType.alias}"
@@ -114,7 +111,7 @@
             </div>
             <div class="form-group">
                 <label for="type">Тип платежа:</label>
-                <select class="form-control" name="type" id="type" th:field="*{type}" onchange="toggleFields()" required>
+                <select class="form-control" name="type" id="type" th:field="*{template.type}" onchange="toggleFields()" required>
                     <option th:each="typeOption : ${T(org.aturkov.expense.domain.Type).values()}"
                             th:value="${typeOption}"
                             th:text="${typeOption.alias}"
@@ -123,7 +120,7 @@
             </div>
             <div class="form-group">
                 <label for="item">Статья:</label>
-                <select class="form-control" name="item" id="item" th:field="*{itemId}" required>
+                <select class="form-control" name="item" id="item" th:field="*{template.itemId}" required>
                     <option th:each="item : ${items}"
                             th:value="${item.id}"
                             th:text="${item.name}"
@@ -132,7 +129,7 @@
             </div>
             <div class="form-group">
                 <label for="name">Название:</label>
-                <input type="text" th:field="*{name}" class="form-control" id="name" required>
+                <input type="text" th:field="*{template.name}" class="form-control" id="name" required>
             </div>
             <div class="form-group">
                 <label>Тип ввода:</label>
@@ -147,11 +144,11 @@
                 <div class="form-row">
                     <div class="form-group col">
                         <label for="amount">Сумма:</label>
-                        <input type="number" th:field="*{amount}" class="form-control" id="amount" style="width: 150px;" step="0.01">
+                        <input type="number" th:field="*{template.amount}" class="form-control" id="amount" style="width: 150px;" step="0.01">
                     </div>
                     <div class="form-group col">
                         <label for="currency">Валюта:</label>
-                        <select class="form-control" name="currency" id="currency" th:field="*{currency}" style="width: 100px;">
+                        <select class="form-control" name="currency" id="currency" th:field="*{template.currency}" style="width: 100px;">
                             <option th:each="currencyOption : ${T(org.aturkov.expense.domain.CurrencyType).values()}"
                                     th:value="${currencyOption}"
                                     th:text="${currencyOption.getValue()}"></option>
@@ -163,18 +160,19 @@
                 <div class="form-row">
                     <div class="form-group col">
                         <label for="percent">Процент:</label>
-                        <input type="number" th:field="*{percent}" class="form-control" id="percent" style="width: 150px;" step="0.01">
+                        <input type="number" th:field="*{template.percent}" class="form-control" id="percent" style="width: 150px;" step="0.01">
                     </div>
                     <div class="form-group col">
                         <label for="dependTemplateId">Зависимый шаблон:</label>
-                        <select class="form-control" name="dependTemplateId" id="dependTemplateId" th:field="*{dependTemplateId}">
-                            <option value="">Выберите шаблон</option>
+                        <select class="form-control" name="dependTemplateId" id="dependTemplateId" th:field="*{template.dependTemplateId}">
+                            <option value="">выберите шаблон</option>
                             <option th:each="template : ${templates}" th:value="${template.id}" th:text="${template.name}">Template</option>
                         </select>
                     </div>
                     <div class="form-group col">
                         <label for="templatePeriod">Шаблон периода:</label>
-                        <select class="form-control" name="templatePeriod" id="templatePeriod" th:field="*{templatePeriod}">
+                        <select class="form-control" name="templatePeriod" id="templatePeriod" th:field="*{template.templatePeriod}">
+                            <option value="">выберите период</option>
                             <option th:each="templatePeriod : ${T(org.aturkov.expense.domain.TemplatePeriod).values()}"
                                     th:value="${templatePeriod}"
                                     th:text="${templatePeriod.alias}"
@@ -185,43 +183,43 @@
             </div>
             <div class="form-group">
                 <label for="deposit">Счет:</label>
-                <select class="form-control" name="deposit" id="deposit" th:field="*{depositId}">
+                <select class="form-control" name="deposit" id="deposit" th:field="*{template.depositId}">
                     <option value="">Выберите счет</option>
                     <option th:each="deposit : ${deposits}" th:value="${deposit.id}" th:text="${deposit.name}">Deposit</option>
                 </select>
             </div>
             <div class="form-group">
                 <label for="period">Период оплаты:</label>
-                <select class="form-control" name="period" id="period" th:field="*{period}">
-                    <option th:each="periodOption : ${T(org.aturkov.expense.domain.ValidityPeriod.Time).values()}"
-                            th:value="${periodOption}"
-                            th:text="${periodOption.name}"
+                <select class="form-control" name="period" id="period" th:field="*{template.period}">
+                    <option th:each="period : ${T(org.aturkov.expense.domain.PaymentPeriod).values()}"
+                            th:value="${period}"
+                            th:text="${period.name}"
                     ></option>
                 </select>
             </div>
             <div class="form-group" >
                 <label for="paymentCount">Количество платежей:</label>
-                <input type="number" th:field="*{paymentCount}" class="form-control" id="paymentCount">
+                <input type="number" th:field="*{template.paymentCount}" class="form-control" id="paymentCount">
             </div>
             <div class="form-group">
                 <label for="paymentDay">Платежный день:</label>
-                <input type="number" th:field="*{paymentDay}" class="form-control" id="paymentDay">
+                <input type="number" th:field="*{template.paymentDay}" class="form-control" id="paymentDay">
             </div>
             <div class="form-check form-switch">
-                <input class="form-check-input" type="checkbox" th:field="*{weekend}" id="flexSwitchCheckChecked">
+                <input class="form-check-input" type="checkbox" th:field="*{template.weekend}" id="flexSwitchCheckChecked">
                 <label class="form-check-label" for="flexSwitchCheckChecked">Дата оплаты до выходных</label>
             </div>
             <div class="form-group">
                 <label for="paymentDate">Дата первого платежа:</label>
-                <input type="date" th:field="*{paymentDate}" class="form-control" id="paymentDate">
+                <input type="date" th:field="*{template.paymentDate}" class="form-control" id="paymentDate">
             </div>
             <div class="form-check form-switch">
-                <input class="form-check-input" type="checkbox" th:field="*{paymentInCurrentMonth}" id="flexSwitchCheck">
+                <input class="form-check-input" type="checkbox" th:field="*{template.paymentInCurrentMonth}" id="flexSwitchCheck">
                 <label class="form-check-label" for="flexSwitchCheck">Дополнительный платеж в месяце (в платежный день)</label>
             </div>
             <div class="form-group">
                 <label for="expiryDate">Конченый срок оплаты:</label>
-                <input type="date" th:field="*{expiryDate}" class="form-control" id="expiryDate">
+                <input type="date" th:field="*{template.expiryDate}" class="form-control" id="expiryDate">
             </div>
             <div class="form-group mt-3">
                 <button type="submit" class="btn btn-primary">Добавить</button>

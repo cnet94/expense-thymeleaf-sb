@@ -9,6 +9,8 @@ public enum ErrorCodeExpense {
     UUID_ALREADY_EXIST(10001, "uuid is already exist"),
     ENTITY_INVALID(10002, "entity invalid"),
     ITEM_DELETE_FAILED(10101, "item[%s] cannot be deleted"),
+    PAGINATION_ERROR(10201, "pagination offset must be a multiple of the size"),
+    PAGINATION_LIMIT_ERROR(10202, "pagination value limit cannot be less than 1")
 ;
 
     private final int code;

@@ -5,10 +5,11 @@ import org.aturkov.expense.dao.template.TemplateEntity;
 import org.aturkov.expense.dto.template.TemplateSaveDTOv1;
 import org.aturkov.expense.mapper.MapperContext;
 import org.aturkov.expense.mapper.SimpleDTOMapper;
+import org.aturkov.expense.service.other.DateService;
 import org.springframework.stereotype.Component;
 
 
-import static org.aturkov.expense.service.other.DateService.convertToTimestamp;
+import static org.aturkov.expense.service.other.DateService.convertOrNull;
 
 @Component
 @RequiredArgsConstructor
@@ -32,8 +33,8 @@ public class TemplateSaveDTOReverseMapper extends SimpleDTOMapper<TemplateSaveDT
                 .setTemplatePeriodId(src.getTemplatePeriod())
                 .setDepositId(src.getDepositId())
                 .setPaymentInCurrentMonth(src.isPaymentInCurrentMonth())
-                .setPaymentDate(convertToTimestamp(src.getPaymentDate()))
-                .setExpiryDate(convertToTimestamp(src.getExpiryDate()))
-                .setCreatedAt(convertToTimestamp(src.getCreateAt()));
+                .setPaymentDate(DateService.convertOrNull(src.getPaymentDate()))
+                .setExpiryDate(convertOrNull(src.getExpiryDate()))
+                .setCreatedAt(convertOrNull(src.getCreateAt()));
     }
 }

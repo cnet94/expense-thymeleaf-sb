@@ -56,6 +56,6 @@ public class TemplateCreateController {
             redirectAttributes.addFlashAttribute("errorMessage", "Error retrieving template: " + e.getMessage());
             return "redirect:/template/create-form";
         }
-        return "redirect:/template/card/" + entity.getId();
+        return "redirect:/template/" + entity.getId() + "/card";
     }
 }

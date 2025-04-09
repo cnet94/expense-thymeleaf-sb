@@ -5,6 +5,6 @@ import lombok.Getter;
 @Getter
 public enum Ternary {
     ONLY,
-    NOT_ONLY,
+    ONLY_NOT,
     ALL
 }

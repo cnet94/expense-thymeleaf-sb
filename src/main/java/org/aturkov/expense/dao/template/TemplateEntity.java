@@ -49,7 +49,7 @@ public class TemplateEntity {
 
     @Column(name = "payment_period_type")
     @Enumerated(EnumType.STRING)
-    private ValidityPeriod.Time period;
+    private PaymentPeriod period;
 
     @Column(name = "payment_count")
     private Integer paymentCount;

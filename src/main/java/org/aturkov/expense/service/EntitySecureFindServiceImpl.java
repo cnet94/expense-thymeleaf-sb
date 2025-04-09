@@ -15,6 +15,11 @@ public abstract class EntitySecureFindServiceImpl<T> implements EntitySecureFind
     public T safeFindEntity(UUID id, CrudRepository<T, UUID> crudRepository, FindMode findMode) throws ServiceException {
         Optional<T> entity = crudRepository.findById(id);
         switch (findMode) {
+            case ifNullNone -> {
+                if (entity.isEmpty()) {
+                    return null;
+                }
+            }
             case ifNullLogError -> {
                 if (entity.isEmpty()) {
                     log.info("Entity with id[{}] not found", id);
@@ -32,6 +37,7 @@ public abstract class EntitySecureFindServiceImpl<T> implements EntitySecureFind
     }
 
     public enum FindMode {
+        ifNullNone,
         ifNullLogError,
         ifNullThrowsError
     }

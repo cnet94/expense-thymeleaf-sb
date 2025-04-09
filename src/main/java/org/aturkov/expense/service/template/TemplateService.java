@@ -3,14 +3,11 @@ package org.aturkov.expense.service.template;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.aturkov.expense.domain.CurrencyType;
-import org.aturkov.expense.domain.OperationType;
+import org.aturkov.expense.domain.*;
 import org.aturkov.expense.exception.ServiceException;
 import org.aturkov.expense.dao.detail.ExpenseDetailEntity;
 import org.aturkov.expense.dao.template.TemplateEntity;
 import org.aturkov.expense.dao.template.TemplateRepository;
-import org.aturkov.expense.domain.Balance;
-import org.aturkov.expense.domain.ValidityPeriod;
 import org.aturkov.expense.service.other.DateService;
 import org.aturkov.expense.service.EntitySecureFindServiceImpl;
 import org.aturkov.expense.service.EntitySmartService;
@@ -179,11 +176,9 @@ public class TemplateService extends EntitySecureFindServiceImpl<TemplateEntity>
     }
 
     private void fillingTemplateCredit(TemplateEntity template) {
-        if (template.getPeriod() == ValidityPeriod.Time.NONE)
-            template.setPeriod(ValidityPeriod.Time.CURRENT_MONTH);
-        template
-                .setDetailAmount(template.getAmount())
-                .setAmount(null);
+        if (template.getPeriod() == PaymentPeriod.NONE)
+            template.setPeriod(PaymentPeriod.CURRENT_MONTH);
+        template.setDetailAmount(template.getAmount());
         fillingTemplateReminder(template);
     }
 
@@ -216,10 +211,7 @@ public class TemplateService extends EntitySecureFindServiceImpl<TemplateEntity>
     }
 
     private Double countBalanceOfPayment(List<ExpenseDetailEntity> list) {
-        return list.stream()
-                .filter(e -> !e.isPaid())
-                .mapToDouble(ExpenseDetailEntity::getAmount)
-                .sum();
+        return list.stream().filter(e -> !e.isPaid()).mapToDouble(ExpenseDetailEntity::getAmount).sum();
     }
 
     private void checkAmountOrPercent(TemplateEntity template) throws ServiceException {

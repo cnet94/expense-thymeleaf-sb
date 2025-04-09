@@ -41,19 +41,17 @@
     </style>
 </head>
 <body>
-<div th:replace="~{fragments/ sidebar :: sidebar}"></div>
-<div th:if="${errorMessage}" class="alert alert-warning alert-dismissible fade show" role="alert">
-    <strong>Holy guacamole!</strong> <span th:text="${errorMessage}"></span>
-    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-</div>
+<div th:replace="~{fragments/sidebar :: sidebar}"></div>
+<div th:replace="~{fragments/message :: message}"></div>
 <div class="content" id="content">
     <div class="container mt-5">
         <table class="table table-striped table-hover">
             <thead class="table-dark">
             <tr>
+                <th>Операция</th>
                 <th>Название</th>
                 <th>Тип</th>
-                <th>Сумма остатка</th>
+                <th>Сумма</th>
                 <th>Валюта</th>
                 <th>Дата окночания</th>
                 <th>Действия</th>
@@ -61,29 +59,26 @@
             </thead>
             <tbody>
                 <tr th:each="template : ${templateList}">
+                    <td th:text="${template.operationType}"></td>
                     <td th:text="${template.name}"></td>
                     <td th:text="${template.type}"></td>
                     <td th:text="${template.balance != null ? template.balance.remainderAmount : '' }"></td>
                     <td th:text="${template.balance != null ? template.balance.currency : '' }"></td>
-                    <td th:text="${template.expiryDate != null ? #temporals.format(template.expiryDate, 'yyyy-MM-dd HH:mm') : ''}"></td>
+                    <td th:text="${template.expiryDate != null ? #temporals.format(template.expiryDate, 'yyyy MM dd HH:mm') : ''}"></td>
                     <td>
                         <div style="display: flex; gap: 5px;">
-                            <form th:action="@{/template/card/{id}(id=${template.id})}" method="get">
-                                <button type="submit" class="btn btn-dark btn-sm">
-                                    <i class="fa-regular fa-eye"></i>
-                                </button>
-                            </form>
-                            <form th:action="@{/template/edit/{id}(id=${template.id})}" method="get">
-                                <button type="submit" class="btn btn-warning btn-sm">
-                                    <i class="fa-solid fa-pen"></i>
-                                </button>
-                            </form>
-                            <form th:action="@{/template/delete/{id}(id=${template.id})}" method="post">
+                            <a th:href="@{/template/{id}/card(id=${template.id})}" class="btn btn-dark btn-sm">
+                                <i class="fa-regular fa-eye"></i>
+                            </a>
+                            <a th:href="@{/template/{id}/edit(id=${template.id})}" class="btn btn-warning btn-sm">
+                                <i class="fa-solid fa-pen"></i>
+                            </a>
+                            <form th:action="@{/template/{id}/delete(id=${template.id})}" method="post">
                                 <button type="submit" class="btn btn-danger btn-sm">
                                     <i class="fa-solid fa-xmark"></i>
                                 </button>
                             </form>
-                            <form th:action="@{/template/archive/{id}(id=${template.id})}" method="post">
+                            <form th:action="@{/template/{id}/archive(id=${template.id})}" method="post">
                                 <button type="submit" class="btn btn-secondary btn-sm">
                                     <i class="fa-solid fa-box-archive"></i>
                                 </button>
