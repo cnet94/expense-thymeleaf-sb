@@ -22,7 +22,7 @@ public class TemplateDTOv1 {
     public OperationType operationType;
     public Type type;
     public PaymentPeriod period;
-    public TemplatePeriod templatePeriod;
+    public PaymentPeriod templatePeriod;
     public Integer paymentCount;
     public Integer paymentDay;
     public Boolean weekend;

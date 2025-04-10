@@ -65,8 +65,7 @@ public class DateService {
                 .setPeriodDateTo(convertOrNull(targetMonth.atEndOfMonth()));
     }
 
-    public ValidityPeriod getPeriod(LocalDate localDate) {;
-        YearMonth date = YearMonth.from(localDate);
+    public ValidityPeriod getPeriod(YearMonth date) {;
         return new ValidityPeriod()
                 .setDateFrom(date.atDay(1))
                 .setDateTo(date.atEndOfMonth());

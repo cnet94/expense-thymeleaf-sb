@@ -91,7 +91,7 @@
                                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                     </div>
                                     <div class="modal-body">
-                                        <form th:action="@{/detail/{detailId}/payment/approve(detailId=${detail.id})}" method="post" enctype="multipart/form-data">
+                                        <form th:action="@{/detail/{id}/payment/approve(id=${detail.id})}" method="post" enctype="multipart/form-data">
                                             <div class="form-group">
                                                 <select class="form-control" id="deposit" name="depositId" required>
                                                     <option value="">Выберите счет</option>

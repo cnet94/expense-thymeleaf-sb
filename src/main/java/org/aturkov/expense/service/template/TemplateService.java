@@ -41,12 +41,10 @@ public class TemplateService extends EntitySecureFindServiceImpl<TemplateEntity>
             dateService.checkDateInFuture(entity.getExpiryDate());
         switch (entity.getType()) {
             case RECURRING -> {
-                checkAmountPositive(entity);
                 if (entity.getPaymentDay() == null)
                     throw new ServiceException("Payment day is required");
             }
             case FIXED -> {
-                checkAmountPositive(entity);
                 dateService.checkPaymentDayCorrect(entity);
                 dateService.checkPaymentCountPositiveAndLimit(entity, 100);
                 dateService.checkPaymentDateNotNull(entity);
@@ -141,7 +139,7 @@ public class TemplateService extends EntitySecureFindServiceImpl<TemplateEntity>
         return dbTemplate;
     }
 
-    private void fillingTemplate(TemplateEntity template) {
+    private void fillingTemplate(TemplateEntity template) throws ServiceException {
         fillingGeneralTemplate(template);
         fillingAmountOrPercent(template);
         switch (template.getType()) {
@@ -151,20 +149,17 @@ public class TemplateService extends EntitySecureFindServiceImpl<TemplateEntity>
     }
 
     private void fillingAmountOrPercent(TemplateEntity template) {
-        if (template.getAmount() != null) {
-            template
-                    .setAmount(template.getAmount())
-                    .setCurrency(template.getCurrency())
-                    .setPercent(null);
-        } else {
-            if (template.getDependTemplateId() != null)
-                template
-                        .setAmount(null)
-                        .setCurrency(template.getDependTemplate().getCurrency());
-            else
-                template.setAmount(null)
-                        .setCurrency(CurrencyType.BYN);
-        }
+        if (template.getPercent() == null)
+            return;
+        template
+                .setAmount(null)
+                .setCurrency(null);
+        if (CollectionUtils.isEmpty(template.getDependentTemplateIds()))
+            return;
+        if (!CollectionUtils.isEmpty(template.getDependentTemplates()))
+            return;
+        List<TemplateEntity> dependentTemplates = templateRepository.findAllByIdIn(template.getDependentTemplateIds());
+        template.setDependentTemplates(dependentTemplates);
     }
 
     private void fillingGeneralTemplate(TemplateEntity template) {
@@ -194,7 +189,7 @@ public class TemplateService extends EntitySecureFindServiceImpl<TemplateEntity>
                 .setPeriod(null)
                 .setWeekend(null)
                 .setTempPaymentDate(template.getPaymentDate())
-                .setTemplatePeriodId(null)
+                .setTemplatePeriod(null)
                 .setPaymentDate(null)
                 .setExpiryDate(null);
     }

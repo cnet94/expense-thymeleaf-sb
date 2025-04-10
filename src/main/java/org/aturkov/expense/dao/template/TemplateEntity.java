@@ -10,7 +10,9 @@ import org.aturkov.expense.domain.*;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 @Entity
@@ -66,12 +68,9 @@ public class TemplateEntity {
     @Column(name = "weekend")
     private Boolean weekend;
 
-    @Column(name = "depend_template_id")
-    private UUID dependTemplateId;
-
     @Column(name = "template_period_id")
     @Enumerated(EnumType.STRING)
-    private TemplatePeriod templatePeriodId;
+    private PaymentPeriod templatePeriod;
 
     @Column(name = "deposit_id")
     private UUID depositId;
@@ -84,10 +83,21 @@ public class TemplateEntity {
     @Column(name = "active")
     private Boolean active;
 
-    @EqualsAndHashCode.Exclude
-    @ManyToOne
-    @JoinColumn(name = "depend_template_id", referencedColumnName = "id", insertable = false, updatable = false)
-    private TemplateEntity dependTemplate;
+    @ManyToMany
+    @JoinTable(
+            name = "template_dependencies",
+            joinColumns = @JoinColumn(name = "template_id"),
+            inverseJoinColumns = @JoinColumn(name = "dependent_template_id")
+    )
+    private List<TemplateEntity> dependentTemplates = new ArrayList<>();
+
+    @ManyToMany(mappedBy = "dependentTemplates")
+    private List<TemplateEntity> templatesThatDependOnThis = new ArrayList<>();
+
+//    @EqualsAndHashCode.Exclude
+//    @ManyToOne
+//    @JoinColumn(name = "depend_template_id", referencedColumnName = "id", insertable = false, updatable = false)
+//    private TemplateEntity dependTemplate;
 
     @EqualsAndHashCode.Exclude
     @ManyToOne(fetch = FetchType.LAZY)
@@ -98,6 +108,9 @@ public class TemplateEntity {
     @OneToMany
     @JoinColumn(name = "template_id", insertable = false, updatable = false)
     private List<ExpenseDetailEntity> details;
+
+    @Transient
+    private Set<UUID> dependentTemplateIds;
 
     @Transient
     private Timestamp tempPaymentDate;

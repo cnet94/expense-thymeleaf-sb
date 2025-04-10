@@ -78,6 +78,8 @@ public class DetailService extends EntitySecureFindServiceImpl<ExpenseDetailEnti
     }
 
     public void createDetail(TemplateEntity template) throws ServiceException {
+        if (!CollectionUtils.isEmpty(template.getDependentTemplates()))
+            checkCreateOpportunity(template);
         if (template.getOperationType().equals(OperationType.INCOME))
             createIncomeDetail(template);
         else
@@ -103,7 +105,6 @@ public class DetailService extends EntitySecureFindServiceImpl<ExpenseDetailEnti
         ExpenseDetailEntity newDetail = fillingGeneralDetail(template);
         fillingAmountAndCurrency(template, newDetail);
         switch (template.getType()) {
-//            case BASIC -> fillingExpenseWithTypeOneTime(template, newDetail);
             case RECURRING -> fillingExpenseWithTypeRecurring(template, newDetail);
             case FIXED -> fillingExpenseWithTypeCredit(template, newDetail);
         }
@@ -192,6 +193,7 @@ public class DetailService extends EntitySecureFindServiceImpl<ExpenseDetailEnti
         if (!type.equals(Type.RECURRING))
             return;
         if (operationType.equals(OperationType.EXPENSE))
+            //todo добавить автоматические создание новой записи по рассанию (1 числа след месяца)
             createExpenseDetail(template);
         else {
             createIncomeDetail(template);
@@ -220,37 +222,49 @@ public class DetailService extends EntitySecureFindServiceImpl<ExpenseDetailEnti
 
     private void fillingAmountAndCurrency(TemplateEntity template, ExpenseDetailEntity newDetail) throws ServiceException {
         double sum = 0.0;
-        if (template.getDependTemplateId() != null) {
-            LocalDate dateOfMonth = LocalDate.now().plusMonths(template.getPeriod().getOffset());
-            ValidityPeriod period = dateService.getPeriod(dateOfMonth);
+        if (!CollectionUtils.isEmpty(template.getDependentTemplates())) {
+            YearMonth date = YearMonth.now().plusMonths(template.getTemplatePeriod().getOffset());
+            ValidityPeriod period = dateService.getPeriod(date);
 
-//        if (!checkDetailHasPaidInPeriod(template.getDependTemplate(), period))
-//            return false;
+//            if (!checkDetailHasPaidInPeriod(template.getDependTemplate(), period))
+//                return false;
 
-            if (template.getDependTemplate().getDetails().isEmpty())
-                throw new ServiceException("На данный момент невозможно рассчитать сумму текущего платежа, потому что у шаблона нет деталей");
-
-            for (ExpenseDetailEntity dependDetail : template.getDependTemplate().getDetails()) {
-                if (Boolean.TRUE.equals(dependDetail.isPaid())
-                        && dependDetail.getFactPaymentDate() != null
-                        && dateService.dateIsIncludeInPeriod(dependDetail.getFactPaymentDate(), period))
-                    sum += dependDetail.getAmount();
+            for (TemplateEntity dependentTemplate : template.getDependentTemplates()) {
+                //todo подумать над тем что счета могут быть в разной валюте
+                if (CollectionUtils.isEmpty(dependentTemplate.getDetails()))
+                    continue;
+                if (template.getCurrency() == null)
+                    template.setCurrency(dependentTemplate.getCurrency());
+                for (ExpenseDetailEntity dependDetail : dependentTemplate.getDetails()) {
+                    if (Boolean.TRUE.equals(dependDetail.isPaid())
+                            && dependDetail.getFactPaymentDate() != null
+                            && dateService.dateIsIncludeInPeriod(dependDetail.getFactPaymentDate(), period))
+                        sum += dependDetail.getAmount();
+                }
             }
 
+//            if (template.getDependTemplate().getDetails().isEmpty())
+//                throw new ServiceException("На данный момент невозможно рассчитать сумму текущего платежа, потому что у шаблона нет деталей");
+
             newDetail.setAmount(calculatePercent(sum, template.getPercent()));
-        } else if (template.getTemplatePeriodId() != null) {
-            if (template.getTemplatePeriodId().equals(TemplatePeriod.INCOME_LAST_MONTH)) {
+        } else if (template.getTemplatePeriod() != null) {
+            if (template.getTemplatePeriod().equals(PaymentPeriod.LAST_MONTH)) {
                 YearMonth date = YearMonth.from(LocalDate.now().minusMonths(1));
                 List<ExpenseDetailEntity> details = expenseDetailRepository.findByPaymentDateAndPaid(date.getMonthValue(), date.getYear());
                 sum = details.stream().mapToDouble(ExpenseDetailEntity::getAmount).sum();
                 newDetail.setAmount(calculatePercent(sum, template.getPercent()));
-            } else if (template.getTemplatePeriodId().equals(TemplatePeriod.EXPENSE_LAST_MONTH)) {
-                //todo not implemented
             }
+//            else if (template.getTemplatePeriod().equals(TemplatePeriod.EXPENSE_LAST_MONTH)) {
+//                //todo not implemented
+//            }
         } else {
             newDetail.setAmount(template.getAmount());
         }
         newDetail.setCurrency(template.getCurrency());
+    }
+
+    private void checkCreateOpportunity(TemplateEntity template) throws ServiceException {
+        //если прошлый месяц и более то можно создать
     }
 
     private boolean checkDetailHasPaidInPeriod(TemplateEntity dependTemplate, ValidityPeriod period) throws ServiceException {

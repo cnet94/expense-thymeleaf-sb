@@ -162,20 +162,37 @@
                         <label for="percent">Процент:</label>
                         <input type="number" th:field="*{template.percent}" class="form-control" id="percent" style="width: 150px;" step="0.01">
                     </div>
-                    <div class="form-group col">
+                    <!-- <div class="form-group col">
                         <label for="dependTemplateId">Зависимый шаблон:</label>
                         <select class="form-control" name="dependTemplateId" id="dependTemplateId" th:field="*{template.dependTemplateId}">
                             <option value="">выберите шаблон</option>
                             <option th:each="template : ${templates}" th:value="${template.id}" th:text="${template.name}">Template</option>
                         </select>
+                    </div> -->
+                    <div class="form-group col">
+                        <label>Зависимые шаблоны:</label>
+                        <div class="template-checkbox-list" style="max-height: 200px; overflow-y: auto; border: 1px solid #ddd; padding: 10px; border-radius: 4px;">
+                            <div class="form-check" th:each="template : ${templates}">
+                                <input class="form-check-input" 
+                                       type="checkbox" 
+                                       th:field="*{template.dependTemplateIds}" 
+                                       th:value="${template.id}" 
+                                       th:id="'template_' + ${template.id}">
+                                <label class="form-check-label" 
+                                       th:for="'template_' + ${template.id}" 
+                                       th:text="${template.name}">
+                                    Template
+                                </label>
+                            </div>
+                        </div>
                     </div>
                     <div class="form-group col">
                         <label for="templatePeriod">Шаблон периода:</label>
                         <select class="form-control" name="templatePeriod" id="templatePeriod" th:field="*{template.templatePeriod}">
                             <option value="">выберите период</option>
-                            <option th:each="templatePeriod : ${T(org.aturkov.expense.domain.TemplatePeriod).values()}"
+                            <option th:each="templatePeriod : ${T(org.aturkov.expense.domain.PaymentPeriod).values()}"
                                     th:value="${templatePeriod}"
-                                    th:text="${templatePeriod.alias}"
+                                    th:text="${templatePeriod.name}"
                             ></option>
                         </select>
                     </div>
