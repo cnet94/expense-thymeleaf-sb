@@ -51,12 +51,15 @@
 <body>
 <div th:replace="~{fragments/sidebar :: sidebar}"></div>
 <div th:replace="~{fragments/message :: message}"></div>
-
 <div class="content" id="content">
     <div class="container mt-5">
+        <form th:action="@{/item/create-form}" method="get">
+            <button type="submit" class="btn btn-success btn-sm">Добавить</button>
+        </form>
         <table class="table table-striped table-hover">
             <thead class="table-dark">
                 <tr>
+                    <th>Operation</th>
                     <th>Name</th>
                     <th>Status</th>
                     <th>Actions</th>
@@ -64,6 +67,7 @@
             </thead>
             <tbody>
                 <tr th:each="item : ${rs.items}">
+                    <td th:text="${item.operationType}"></td>
                     <td th:text="${item.name}"></td>
                     <td th:text="${item.status}"></td>
                     <td>

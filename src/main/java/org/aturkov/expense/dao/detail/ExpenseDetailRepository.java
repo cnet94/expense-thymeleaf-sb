@@ -24,4 +24,7 @@ public interface ExpenseDetailRepository extends CrudRepository<ExpenseDetailEnt
 
     @Query("SELECT ed FROM ExpenseDetailEntity ed WHERE (MONTH(ed.planPaymentDate) = :month) AND YEAR(ed.planPaymentDate) = :year AND ed.paid = false")
     List<ExpenseDetailEntity> findByPaymentDateAndNotPaid(@Param("month") int month, @Param("year") int year);
+
+    @Query("SELECT ed FROM ExpenseDetailEntity ed WHERE (MONTH(ed.factPaymentDate) = :month) AND YEAR(ed.factPaymentDate) = :year AND ed.paid = true")
+    List<ExpenseDetailEntity> findByFactPaymentDateLikeYearMonthAndPaid(@Param("month") int month, @Param("year") int year);
 }

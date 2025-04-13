@@ -12,6 +12,7 @@
 <body>
     <div class="container mt-5">
         <form action="#" th:action="@{/detail/{id}/update/v1(id=${rs.detail.id})}" th:object="${rs.detail}" method="post" class="mt-3">
+            <input class="form-control" type="hidden" name="order" th:field="*{order}" />
             <input class="form-control" type="hidden" name="templateId" th:field="*{templateId}" />
             <div class="form-group">
                 <label for="itemName">Item name:</label>

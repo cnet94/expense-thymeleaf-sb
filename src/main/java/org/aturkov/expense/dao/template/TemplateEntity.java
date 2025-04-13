@@ -15,6 +15,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
+
 @Entity
 @Data
 @Accessors(chain = true)
@@ -83,6 +84,9 @@ public class TemplateEntity {
     @Column(name = "active")
     private Boolean active;
 
+    @Column(name = "all_details")
+    private boolean allDetails;
+
     @ManyToMany
     @JoinTable(
             name = "template_dependencies",
@@ -93,11 +97,6 @@ public class TemplateEntity {
 
     @ManyToMany(mappedBy = "dependentTemplates")
     private List<TemplateEntity> templatesThatDependOnThis = new ArrayList<>();
-
-//    @EqualsAndHashCode.Exclude
-//    @ManyToOne
-//    @JoinColumn(name = "depend_template_id", referencedColumnName = "id", insertable = false, updatable = false)
-//    private TemplateEntity dependTemplate;
 
     @EqualsAndHashCode.Exclude
     @ManyToOne(fetch = FetchType.LAZY)

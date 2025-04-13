@@ -1,6 +1,7 @@
 package org.aturkov.expense.controller.simple.template;
 
 import lombok.RequiredArgsConstructor;
+import org.aturkov.expense.dao.template.TemplateEntity;
 import org.aturkov.expense.dto.template.TemplateRsDTOv1;
 import org.aturkov.expense.mapper.template.TemplateDTOMapper;
 import org.aturkov.expense.service.template.TemplateService;
@@ -21,7 +22,8 @@ public class TemplateListController {
     public String showTemplates(Model model) {
         List<TemplateRsDTOv1> rs;
         try {
-            rs = templateDTOMapper.convertCollection(templateService.getAllThatIsActive());
+            List<TemplateEntity> list = templateService.getAllThatIsActive();
+            rs = templateDTOMapper.convertCollection(list);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

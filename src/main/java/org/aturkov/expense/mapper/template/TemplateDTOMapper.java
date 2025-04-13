@@ -45,12 +45,13 @@ public class TemplateDTOMapper extends SimpleDTOMapper<TemplateEntity, TemplateR
     }
 
     private void fillAmount(TemplateEntity src, TemplateRsDTOv1 dst) throws Exception {
-        dst.setAmount(src.getAmount());
         switch (src.getType()) {
-            case RECURRING -> {}
+            case RECURRING ->
+                dst.setAmount(src.getAmount());
             case FIXED -> {
                 templateService.fillingGeneralBalance(src);
                 dst.setBalance(balanceDTOMapper.convert(src.getGeneralBalance()));
+                dst.setAmount(src.getGeneralBalance().getRemainderAmount());
             }
         }
     }

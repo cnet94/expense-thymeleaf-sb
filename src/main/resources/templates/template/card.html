@@ -131,6 +131,7 @@
             <th>Валюта</th>
             <th>План. дата</th>
             <th>Дата оплаты</th>
+            <th>Дата активации</th>
             <th colspan="2">Период оплаты (с, по)</th>
             <th>Дейстивя</th>
         </tr>
@@ -144,16 +145,17 @@
             <td th:text="${detail.currency}"></td>
             <td th:text="${#temporals.format(detail.planPaymentDate, 'yyyy MM dd')}"></td>
             <td th:text="${detail.factPaymentDate != null ? #temporals.format(detail.factPaymentDate, 'yyyy MM dd HH:mm:ss') : ''}"></td>
+            <td th:text="${detail.updateAmountDate != null ? #temporals.format(detail.updateAmountDate, 'yyyy.MM.dd') : ''}"></td>
             <td th:text="${detail.paymentPeriod != null ? #temporals.format(detail.paymentPeriod.dateFrom, 'yyyy.MM.dd') : ''}"></td>
             <td th:text="${detail.paymentPeriod != null ? #temporals.format(detail.paymentPeriod.dateTo, 'yyyy.MM.dd') : ''}"></td>
             <td>
                 <div style="display: flex; gap: 5px;">
-                    <span th:if="${!detail.paid}">
+                    <span th:if="${!detail.paid && detail.updateAmountDate == null}">
                         <button type="button" class="btn btn-success btn-sm" data-bs-toggle="modal" th:data-bs-target="'#payApproveModal' + ${detail.id}">
                             <i class="fa-solid fa-coins"></i>
                         </button>
                     </span>
-                    <div class="modal fade" th:id="'payApproveModal' + ${detail.id}" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                    <div class="modal fade" th:id="'payApproveModal' + ${detail.id}" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true" th:if="${detail.updateAmountDate == null}">
                         <div class="modal-dialog">
                             <div class="modal-content">
                                 <div class="modal-header">

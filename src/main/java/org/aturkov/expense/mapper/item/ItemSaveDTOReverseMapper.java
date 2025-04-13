@@ -14,6 +14,7 @@ public class ItemSaveDTOReverseMapper extends SimpleDTOMapper<ItemSaveDTOv1, Ite
     @Override
     public void map(ItemSaveDTOv1 src, ItemEntity dst, MapperContext mapperContext) throws Exception {
         dst
-                .setName(src.getName());
+                .setName(src.getName())
+                .setOperationType(src.getOperationType());
     }
 }

@@ -32,6 +32,7 @@ public class ExpenseDetailDTOv1 {
     public LocalDate planPaymentDate;
     public LocalDateTime factPaymentDate;
     public LocalDateTime paymentDate;
+    public LocalDate updateAmountDate;
     public PaymentPeriod period;
     public ValidityPeriodDTOv1 paymentPeriod;
     public boolean paid;

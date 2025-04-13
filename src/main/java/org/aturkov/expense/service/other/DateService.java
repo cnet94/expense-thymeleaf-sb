@@ -7,6 +7,7 @@ import org.aturkov.expense.dao.template.TemplateEntity;
 import org.aturkov.expense.dao.detail.ExpenseDetailEntity;
 import org.aturkov.expense.domain.ValidityPeriod;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 
 import java.sql.Timestamp;
 import java.time.*;
@@ -56,7 +57,7 @@ public class DateService {
 //        return true;
     }
 
-    public void fillingPeriod(ExpenseDetailEntity detail) {
+    public void fillRangePeriod(ExpenseDetailEntity detail) {
         if (detail.getPeriod() == null)
             return;
         YearMonth targetMonth = YearMonth.from(detail.getPlanPaymentDate().toLocalDateTime()).plusMonths(detail.getPeriod().getOffset());
@@ -65,10 +66,14 @@ public class DateService {
                 .setPeriodDateTo(convertOrNull(targetMonth.atEndOfMonth()));
     }
 
-    public ValidityPeriod getPeriod(YearMonth date) {;
+    public ValidityPeriod getRangePeriod(YearMonth date) {;
         return new ValidityPeriod()
                 .setDateFrom(date.atDay(1))
                 .setDateTo(date.atEndOfMonth());
+    }
+
+    public Timestamp getFirstDayOfMonth(YearMonth date, long period) {
+        return Timestamp.valueOf(date.minusMonths(period).atDay(1).atStartOfDay());
     }
 
     // проверка
@@ -93,14 +98,14 @@ public class DateService {
         boolean weekend = template.getWeekend();
         int paymentDay = template.getPaymentDay();
 
-        if (!template.getDetails().isEmpty()) {
+        if (!CollectionUtils.isEmpty(template.getDetails())) {
             ExpenseDetailEntity detail = template.getDetails().stream()
                     .filter(e -> e.getOrder().equals(template.getDetails().size()))
                     .findFirst().orElseThrow();
             return correctDateOfNextPayment(detail.getPlanPaymentDate(),  paymentDay, weekend, 1);
         }
         if (template.getPaymentDate() == null) {
-            return correctDateOfNextPayment(Timestamp.valueOf(LocalDateTime.now()), paymentDay, weekend, 0);
+            return correctDateOfNextPayment(null, paymentDay, weekend, 0);
         } else {
             return correctDateOfNextPayment(template.getPaymentDate(), paymentDay, weekend, 0);
         }
@@ -129,12 +134,20 @@ public class DateService {
     }
 
     private LocalDate correctDateOfNextPayment(Timestamp paymentDate, int paymentDay, boolean weekend, int countMonth) {
-        LocalDate nextPaymentDate = paymentDate.toLocalDateTime().toLocalDate().plusMonths(countMonth);
-        YearMonth yearMonth = YearMonth.from(nextPaymentDate);
-        int lastDayOfMonth = yearMonth.lengthOfMonth();
-        int realPaymentDay = Math.min(paymentDay, lastDayOfMonth);
-        nextPaymentDate = nextPaymentDate.withDayOfMonth(realPaymentDay);
-        return adjustPaymentDate(nextPaymentDate, weekend);
+        if (paymentDate == null) {
+            YearMonth date = YearMonth.from(LocalDateTime.now()).plusMonths(countMonth);
+            int lastDayOfMonth = date.lengthOfMonth();
+            int realPaymentDay = Math.min(paymentDay, lastDayOfMonth);
+            return adjustPaymentDate(date.atDay(realPaymentDay), weekend);
+        } else {
+            if (countMonth > 0) {
+                YearMonth date = YearMonth.from(convertToLocaleDate(paymentDate)).plusMonths(countMonth);
+                int lastDayOfMonth = date.lengthOfMonth();
+                int realPaymentDay = Math.min(paymentDay, lastDayOfMonth);
+                return adjustPaymentDate(date.atDay(realPaymentDay), weekend);
+            }
+            return adjustPaymentDate(convertToLocaleDate(paymentDate), weekend);
+        }
     }
 
     private static LocalDate adjustPaymentDate(LocalDate paymentDate, boolean weekend) {

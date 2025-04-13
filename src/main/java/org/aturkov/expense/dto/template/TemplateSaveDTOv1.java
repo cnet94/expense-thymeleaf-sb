@@ -1,15 +1,16 @@
 package org.aturkov.expense.dto.template;
 
 import lombok.Data;
-import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
-import org.aturkov.expense.domain.*;
+import org.aturkov.expense.domain.CurrencyType;
+import org.aturkov.expense.domain.OperationType;
+import org.aturkov.expense.domain.PaymentPeriod;
+import org.aturkov.expense.domain.Type;
 import org.aturkov.expense.dto.DTOConfig;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
@@ -28,8 +29,8 @@ public class TemplateSaveDTOv1 {
     public Integer paymentCount;
     public Integer paymentDay;
     public Boolean weekend;
-//    public UUID dependTemplateId;
     public Set<UUID> dependTemplateIds;
+    public boolean allDetails = false;
     public UUID depositId;
     @DateTimeFormat(pattern = DTOConfig.DATE_FORMAT)
     public LocalDate paymentDate;

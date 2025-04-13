@@ -9,6 +9,15 @@
 <div class="container mt-5">
     <form th:action="@{/item/save}" th:object="${rs.item}" method="post" class="mt-3">
         <div class="form-group">
+            <label for="operationType">Тип операции:</label>
+            <select class="form-control" name="operationType" id="operationType" th:field="*{operationType}" onchange="toggleFields()" required>
+                <option th:each="operationType : ${T(org.aturkov.expense.domain.OperationType).values()}"
+                        th:value="${operationType}"
+                        th:text="${operationType.alias}"
+                ></option>
+            </select>
+        </div>
+        <div class="form-group">
             <label for="name">Name:</label>
             <input type="text" th:field="*{name}" class="form-control" id="name" required>
         </div>

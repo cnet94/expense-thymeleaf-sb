@@ -8,7 +8,7 @@ import java.util.UUID;
 
 @Data
 @Accessors(chain = true)
-public class TemplateListDTOv1 {
+public class DependTemplateDTOv1 {
     public UUID id;
     public String name;
 }

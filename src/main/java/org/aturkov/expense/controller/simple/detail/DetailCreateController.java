@@ -63,7 +63,7 @@ public class DetailCreateController {
             @ModelAttribute("template") ExpenseDetailCreateRqDTOv1 request) {
         try {
             ExpenseDetailEntity detail = expenseDetailCreateDTOReverseMapper.convert(request.getDetail());
-            detailService.createExpenseDetail(detail);
+            detailService.createSimpleDetail(detail);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -78,7 +78,7 @@ public class DetailCreateController {
         try {
             ExpenseDetailEntity entity = expenseDetailCreateDTOReverseMapper.convert(request.getDetail());
             entity.setTemplateId(templateId);
-            detailService.createExpenseDetail(entity);
+            detailService.createSimpleDetail(entity);
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("errorMessage", "Error retrieving template: " + e.getMessage());
         }
@@ -90,7 +90,7 @@ public class DetailCreateController {
             @ModelAttribute ExpenseDetailCreateRqDTOv1 request) {
         try {
             ExpenseDetailEntity detail = expenseDetailCreateDTOReverseMapper.convert(request.getDetail());
-            detailService.createExpenseDetail(detail);
+            detailService.createSimpleDetail(detail);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

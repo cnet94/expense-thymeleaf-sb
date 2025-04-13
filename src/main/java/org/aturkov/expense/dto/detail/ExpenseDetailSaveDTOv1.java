@@ -18,4 +18,5 @@ public class ExpenseDetailSaveDTOv1 {
     public Double amount;
     public CurrencyType currency;
     public LocalDate planPaymentDate;
+    public boolean autoCreatePlanPaymentDate = false;
 }

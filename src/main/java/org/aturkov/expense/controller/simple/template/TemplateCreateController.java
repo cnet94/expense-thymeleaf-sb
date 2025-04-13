@@ -6,7 +6,6 @@ import org.aturkov.expense.dto.template.TemplateCreateRqDTOv1;
 import org.aturkov.expense.mapper.deposit.DepositDTOMapper;
 import org.aturkov.expense.mapper.item.ItemDTOMapper;
 import org.aturkov.expense.mapper.template.TemplateCreateDTOReverseMapper;
-import org.aturkov.expense.mapper.template.TemplateSaveDTOReverseMapper;
 import org.aturkov.expense.mapper.template.TemplateDTOMapperV2;
 import org.aturkov.expense.service.deposit.DepositService;
 import org.aturkov.expense.service.item.ItemService;

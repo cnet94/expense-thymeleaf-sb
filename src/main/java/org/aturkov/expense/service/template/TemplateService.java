@@ -18,6 +18,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
 import java.util.*;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 import static org.aturkov.expense.service.other.DateService.roundDouble;
 
@@ -30,6 +32,8 @@ public class TemplateService extends EntitySecureFindServiceImpl<TemplateEntity>
     @Lazy
     @Autowired
     private DetailService detailService;
+
+    public final static UUID DEFAULT_INCOME_TEMPLATE = UUID.fromString("00000000-0000-0000-0002-000000000001");
 
     @Override
     public boolean validateEntity(TemplateEntity entity, EntitySmartService.EntityValidateMode entityValidateMode) throws ServiceException {
@@ -78,7 +82,7 @@ public class TemplateService extends EntitySecureFindServiceImpl<TemplateEntity>
         return dbTemplate;
     }
 
-    public List<TemplateEntity> getIncomeTemplate() throws ServiceException {
+    public List<TemplateEntity> getIncomeTemplate() {
         return templateRepository.findByOperationType(OperationType.INCOME);
     }
 
@@ -140,7 +144,7 @@ public class TemplateService extends EntitySecureFindServiceImpl<TemplateEntity>
     }
 
     private void fillingTemplate(TemplateEntity template) throws ServiceException {
-        fillingGeneralTemplate(template);
+        fillGeneralTemplate(template);
         fillingAmountOrPercent(template);
         switch (template.getType()) {
             case RECURRING -> fillingTemplateRecurring(template);
@@ -162,12 +166,12 @@ public class TemplateService extends EntitySecureFindServiceImpl<TemplateEntity>
         template.setDependentTemplates(dependentTemplates);
     }
 
-    private void fillingGeneralTemplate(TemplateEntity template) {
+    private void fillGeneralTemplate(TemplateEntity template) {
         template
                 .setOperationType(template.getOperationType())
                 .setType(template.getType())
                 .setDetails(new ArrayList<>())
-                .setActive(true);;
+                .setActive(true);
     }
 
     private void fillingTemplateCredit(TemplateEntity template) {

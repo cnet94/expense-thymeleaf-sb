@@ -23,6 +23,7 @@ public class ExpenseDetailSaveDTOReverseMapper extends SimpleDTOMapper<ExpenseDe
                 .setName(src.getName())
                 .setAmount(src.getAmount())
                 .setCurrency(src.getCurrency())
-                .setPlanPaymentDate(DateService.convertOrNull(src.getPlanPaymentDate()));
+                .setPlanPaymentDate(DateService.convertOrNull(src.getPlanPaymentDate()))
+                .setAutoCreatePlanPaymentDate(src.isAutoCreatePlanPaymentDate());
     }
 }

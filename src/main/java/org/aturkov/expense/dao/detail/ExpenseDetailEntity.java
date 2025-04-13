@@ -72,6 +72,9 @@ public class ExpenseDetailEntity {
     @Column(name = "deposit_id")
     private UUID depositId;
 
+    @Column(name = "load_amount_date")
+    private Timestamp loadAmountDate;
+
     @ManyToOne
     @JoinColumn(name = "template_id", updatable = false, insertable = false)
     private TemplateEntity template;
@@ -82,4 +85,8 @@ public class ExpenseDetailEntity {
 
     @Transient
     private ValidityPeriod validityPeriod;
+
+    @Transient
+    private boolean autoCreatePlanPaymentDate;
 }
+

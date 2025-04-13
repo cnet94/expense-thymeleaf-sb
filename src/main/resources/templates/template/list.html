@@ -45,6 +45,9 @@
 <div th:replace="~{fragments/message :: message}"></div>
 <div class="content" id="content">
     <div class="container mt-5">
+        <form th:action="@{/template/create-form}" method="get">
+            <button type="submit" class="btn btn-success btn-sm">Добавить</button>
+        </form>
         <table class="table table-striped table-hover">
             <thead class="table-dark">
             <tr>
@@ -62,8 +65,10 @@
                     <td th:text="${template.operationType}"></td>
                     <td th:text="${template.name}"></td>
                     <td th:text="${template.type}"></td>
-                    <td th:text="${template.balance != null ? template.balance.remainderAmount : '' }"></td>
-                    <td th:text="${template.balance != null ? template.balance.currency : '' }"></td>
+                    <td th:text="${template.amount}"></td>
+                    <td th:text="${template.currency}"></td>
+<!--                    <td th:text="${template.balance != null ? template.balance.remainderAmount : '' }"></td>-->
+<!--                    <td th:text="${template.balance != null ? template.balance.currency : '' }"></td>-->
                     <td th:text="${template.expiryDate != null ? #temporals.format(template.expiryDate, 'yyyy MM dd HH:mm') : ''}"></td>
                     <td>
                         <div style="display: flex; gap: 5px;">

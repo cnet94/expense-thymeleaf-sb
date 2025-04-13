@@ -30,6 +30,7 @@ public class TemplateSaveDTOReverseMapper extends SimpleDTOMapper<TemplateSaveDT
                 .setPaymentDay(src.getPaymentDay())
                 .setWeekend(src.getWeekend())
                 .setDependentTemplateIds(src.getDependTemplateIds())
+                .setAllDetails(src.isAllDetails())
                 .setTemplatePeriod(src.getTemplatePeriod())
                 .setDepositId(src.getDepositId())
                 .setPaymentInCurrentMonth(src.isPaymentInCurrentMonth())

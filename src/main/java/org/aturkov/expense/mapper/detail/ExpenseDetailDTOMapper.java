@@ -35,6 +35,7 @@ public class ExpenseDetailDTOMapper extends SimpleDTOMapper<ExpenseDetailEntity,
                 .setPeriod(src.getPeriod())
                 .setPlanPaymentDate(convertToLocaleDate(src.getPlanPaymentDate()))
                 .setFactPaymentDate(convertToLocaleDateTime(src.getFactPaymentDate()))
+                .setUpdateAmountDate(convertToLocaleDate(src.getLoadAmountDate()))
                 .setPaid(src.isPaid());
         if (src.getFactPaymentDate() != null && src.getPeriod() != PaymentPeriod.NONE) {
             src

@@ -25,6 +25,7 @@ public class ItemService {
 
     public ItemEntity createItem(ItemEntity entity) {
         entity
+                .setName("[" + entity.getOperationType().getAlias() + "] " + entity.getName())
                 .setStatus(ItemEntity.Status.active);
         return itemRepository.save(entity);
     }

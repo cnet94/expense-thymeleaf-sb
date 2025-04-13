@@ -68,7 +68,11 @@
             </div>
             <div class="form-group">
                 <label for="planPaymentDate">Plan payment date</label>
-                <input type="date" th:field="*{detail.planPaymentDate}" class="form-control" id="planPaymentDate" required>
+                <input type="date" th:field="*{detail.planPaymentDate}" class="form-control" id="planPaymentDate">
+            </div>
+            <div class="form-check form-switch">
+                <input class="form-check-input" type="checkbox" th:field="*{detail.autoCreatePlanPaymentDate}" id="autoCreatePlanPaymentDate">
+                <label class="form-check-label" for="autoCreatePlanPaymentDate">Автосоздание даты (по шаблону)</label>
             </div>
             <div class="form-group mt-3">
                 <button type="submit" class="btn btn-primary">Добавить detail</button>

@@ -16,6 +16,7 @@ public class ItemDTOMapper extends SimpleDTOMapper<ItemEntity, ItemDTOv1> {
         dst
                 .setId(src.getId())
                 .setName(src.getName())
-                .setStatus(src.getStatus());
+                .setStatus(src.getStatus())
+                .setOperationType(src.getOperationType());
     }
 }
